@@ -58,7 +58,6 @@ for icolorscale=1:2
             bottom=1-topmarg-irow*spheight-(irow-1)*wsrow; % current subplot position
 
             subplot('position',[left,bottom,spwidth,spheight])
-
             vp=squeeze(vv(iit,:,:));
 
             if colorscale{icolorscale}=='log'

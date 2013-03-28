@@ -38,7 +38,7 @@ settings.slope = 'epsilon'; % density gradient error
 settings.nit = 21;
 ref_level = 1800;
 
-glevels=[27.5]
+glevels=[27.25]
 clear g
 
 [e2t,e1t] = scale_fac(squeeze(lats(1,:,:)),squeeze(longs(1,:,:)));

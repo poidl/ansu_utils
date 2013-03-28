@@ -1,5 +1,7 @@
 % subsample 4x4
 % 
+clear all
+close all
 if 1
     % subsample data
     subsample_gk_ak_gamma;

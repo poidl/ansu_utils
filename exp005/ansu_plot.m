@@ -54,7 +54,7 @@ for ifig=1:nfig
         
         vp=squeeze(vv(iit,:,:));
         
-        if 0
+        if 1
             tag='log';
             tmp=vp;
             tmp(vp<=0)=nan;
