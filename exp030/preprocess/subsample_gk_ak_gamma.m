@@ -5,7 +5,7 @@ clear all
 vars = {'s','ct','p','lats','longs'};
 load('/home/z3439823/mymatlab/omega/data_paul/gk_ak_gamma.mat', vars{:})
 
-sk=2;
+sk=4;
 xskip=sk;
 yskip=sk;
 zskip=sk;

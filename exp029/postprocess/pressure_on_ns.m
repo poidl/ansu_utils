@@ -3,7 +3,7 @@ clear all;
 close all;
 
 fname='data/ansu_hist.mat';
-varname= 'depth_change_e_i';
+varname= 'pns_i';
 load(fname, 'ithist');
 load('data/input_data.mat', 'lats','longs');
 
@@ -13,7 +13,7 @@ lon=squeeze(longs(1,1,:));
 vv=ithist.(varname); % variable to plot
 nit=size(vv,1);
 
-nfig=1; % number of figures (pages)
+nfig=3; % number of figures (pages)
 ncols=2; % number of columns
 nrows=3; % number of rows
 nsp=ncols*nrows; % max. number of subplots per figure
@@ -28,7 +28,7 @@ topmarg=(1-(nrows*spheight+(nrows-1)*wsrow))*0.5; % top and bottom margin
 
 cmax=log10(max(abs(vv(:))));
 %cmax=-5
-cmin=-13;
+cmin=-8;
 cbh=nan*ones(nsp); % colorbar handles
 fac=nan*ones(nsp);
 cmax2=max(abs(vv(:)));
@@ -36,10 +36,10 @@ cmax2=max(abs(vv(:)));
 
 
 
-colorscale={'log','lin'};
+colorscale={'lin'};
 
 
-for icolorscale=1:2
+for icolorscale=1:1
     iit=1; % index of iteration
     
     for ifig=1:nfig
@@ -50,7 +50,7 @@ for icolorscale=1:2
 
         isp=1; % index of subplot
         ip=1; % index of plot
-        while (isp<=nsp) && ( ip <=nit)  && (iit<=size(vv,1))
+        while (isp<=nsp) && ( ip <=nit)
             ip=((ifig-1)*nsp+isp);
             irow=ceil(isp/ncols); % row index
             icol=isp-(irow-1)*ncols; % column index
@@ -87,21 +87,21 @@ for icolorscale=1:2
             elseif colorscale{icolorscale}=='lin'
                 tag='lin';
 
-                fac(isp)=max(abs(vp(:))); vp=vp/fac(isp); 
+%                 fac(isp)=max(abs(vp(:))); vp=vp/fac(isp); 
                 %vp=vp/cmax2;
 
                 h=imagesc(lon,lat,vp);
-                colormap([fliplr(colormap('hot'));flipud(hot)]) ;
-                caxis([-1 1])
+%                 colormap([fliplr(colormap('hot'));flipud(hot)]) ;
+%                 caxis([-1 1])
                 cbh(isp)=colorbar('Location','SouthOutside','position',[left,bottom-0.4*wsrow,spwidth,0.1*wsrow]);
-                if isp==6 % 
-                    for ii=1:nsp
-                        set(cbh(ii),'XTick',-1:0.25:1)
-                        set(cbh(ii),'XTickLabel',num2str(fac(ii)*str2num(get(cbh(ii),'XTickLabel')),'%2.1e'));
-                        %set(cbh(ii),'XTickLabel',num2str(cmax2*str2num(get(cbh(ii),'XTickLabel')),'%2.1e'));
-                        xlabel(cbh(ii),'$\Phi''$','interpreter','latex','fontsize',18)
-                    end
-                end
+%                 if isp==6 % 
+%                     for ii=1:nsp
+%                         set(cbh(ii),'XTick',-1:0.25:1)
+%                         set(cbh(ii),'XTickLabel',num2str(fac(ii)*str2num(get(cbh(ii),'XTickLabel')),'%2.1e'));
+%                         %set(cbh(ii),'XTickLabel',num2str(cmax2*str2num(get(cbh(ii),'XTickLabel')),'%2.1e'));
+%                         xlabel(cbh(ii),'$\Phi''$','interpreter','latex','fontsize',18)
+%                     end
+%                 end
                 hold on
 
             end
@@ -116,6 +116,6 @@ for icolorscale=1:2
             iit=iit+1; isp=isp+1;
         end
 
-        print('-dpng','-r200',['figures/phi_dash_',tag,'_',num2str(ifig,'%02i')])
+        print('-dpng','-r200',['figures/',varname,'_',num2str(ifig,'%02i')])
     end
 end

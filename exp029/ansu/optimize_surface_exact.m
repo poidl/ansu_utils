@@ -163,159 +163,62 @@ for it = 1:nit
     
     % select regions
     
-    % build neighbour matrix -> build a matrix which is like a look-up
-    % table to see which gridpoints communicate with each other
-    
-    neighbour = nan(5,length(inds));
     wet=~isnan(n2_ns_squeeze);
-    
-    ii=[1:xi*yi]';
-
-    ii(~wet)=nan;
-    jp1=circshift(ii,-1); % j plus one
-    jm1=circshift(ii,1); % j minus one
-    im1=circshift(ii,yi);
-    ip1=circshift(ii,-yi);
-    if strcmp(wrap,'none')
-            im1(1:yi)=nan;
-            ip1(yi*(xi-1)+1:yi*xi)=nan;
-    end
-    neighbour(1,:)=ii(wet);
-    neighbour(4,:)=jp1(wet);
-    neighbour(5,:)=jm1(wet);
-    neighbour(3,:)=im1(wet);
-    neighbour(2,:)=ip1(wet);
-    
-    
-    nregion = 0;
-    region_matrix = nan(yi,xi);
     
     % find independent regions -> a least-squares problem is solved for
     % each of these regions
     
-    while (length(find(~isnan(region_matrix))) ~= length(neighbour))
+    cc=bwconncomp(wet,4);
+    
+    if strcmp(wrap,'long') % zonally periodic domain
+
+        % which regions have points at western and eastern boundary
+        bdy_wet=false(1,length(cc.PixelIdxList));
+        ireg=1:length(cc.PixelIdxList);
+        for ii=ireg
+            if any(cc.PixelIdxList{ii}<=yi | cc.PixelIdxList{ii}>yi*(xi-1))
+                bdy_wet(ii)=true;
+            end
+        end
+        iw=ireg(bdy_wet);
         
-        pos = 0;
-        %region = [];
-        region = nan(1,2*length(inds));
+        merged=false(1,length(cc.PixelIdxList));
+
+        ii=1;
+        while ii<=length(iw)
+            jj=1;
+            while jj<=length(iw)
+                if ii~=jj && ~(merged(iw(ii)) || merged(iw(jj)))
+                    pts1=cc.PixelIdxList{iw(ii)};
+                    pts2=cc.PixelIdxList{iw(jj)};
+                    % check if western boarder of region iw(ii) intersects
+                    % with eastern border of region iw(jj), or vice versa
+                    cond1=~isempty( intersect( pts1(pts1<=yi)+yi*(xi-1),pts2(pts2>yi*(xi-1)) ) );
+                    cond2=~isempty( intersect( pts2(pts2<=yi)+yi*(xi-1),pts1(pts1>yi*(xi-1)) ) );
+                    if cond1 | cond2
+                        cc.PixelIdxList{iw(ii)}=union( pts1, pts2 );
+                        merged(iw(jj))=true; % iw(jj) has been merged into iw(ii); delete later
+                        ii=ii-1;
+                        break
+                    end
+                end
+                jj=jj+1;
+            end
+            ii=ii+1;
+        end
+        
+        remove=ireg(merged);
+        for ii= remove(end:-1:1)
+            cc.PixelIdxList(ii)=[];
+        end
+    end
+  
+    
+    nregion = 0;
+    while nregion<length(cc.PixelIdxList)
+        
         nregion = nregion + 1;
-        
-        % find starting point of region
-        
-        for i = 1:length(inds)
-            
-            if ~isnan(neighbour(1,i)) && isnan(region_matrix(neighbour(1,i)))
-                pos = pos+1;
-                region(pos) = neighbour(1,i);
-                region_matrix(neighbour(1,i)) = nregion;
-                neighbour(1,i) = nan;
-                
-                if ~isnan(neighbour(2,i))
-                    if isnan(region_matrix(neighbour(2,i)))
-                        pos = pos+1;
-                        region(pos) = neighbour(2,i);
-                        region_matrix(neighbour(2,i)) = nregion;
-                        neighbour(2,i) = nan;
-                    end
-                end
-                
-                if ~isnan(neighbour(3,i))
-                    if isnan(region_matrix(neighbour(3,i)))
-                        pos = pos+1;
-                        region(pos) = neighbour(3,i);
-                        region_matrix(neighbour(3,i)) = nregion;
-                        neighbour(3,i) = nan;
-                    end
-                end
-                
-                if ~isnan(neighbour(4,i))
-                    if isnan(region_matrix(neighbour(4,i)))
-                        pos = pos+1;
-                        region(pos) = neighbour(4,i);
-                        region_matrix(neighbour(4,i)) = nregion;
-                        neighbour(4,i) = nan;
-                    end
-                end
-                
-                if ~isnan(neighbour(5,i))
-                    if isnan(region_matrix(neighbour(5,i)))
-                        pos = pos+1;
-                        region(pos) = neighbour(5,i);
-                        region_matrix(neighbour(5,i)) = nregion;
-                        neighbour(5,i) = nan;
-                    end
-                end
-                
-                break
-                
-            end
-        end
-        
-        region_old = [];
-        
-        %while(length(region) ~= length(region_old))
-        while(length(region(1:pos)) ~= length(region_old))
-            
-            region_old = region(1:pos);
-            
-            % find all other points of region
-            
-            for i = 1:length(inds)
-                
-                if ~isnan(neighbour(1,i))
-                    
-                    if (region_matrix(neighbour(1,i)) == nregion) %#ok
-                        
-                        if ~isnan(neighbour(1,i))
-                            if isnan(region_matrix(neighbour(1,i)))
-                                pos = pos+1;
-                                region(pos) = neighbour(1,i);
-                                region_matrix(neighbour(1,i)) = nregion;
-                                neighbour(1,i) = nan;
-                            end
-                        end
-                        
-                        if ~isnan(neighbour(2,i))
-                            if isnan(region_matrix(neighbour(2,i)))
-                                pos = pos+1;
-                                region(pos) = neighbour(2,i);
-                                region_matrix(neighbour(2,i)) = nregion;
-                                neighbour(2,i) = nan;
-                            end
-                        end
-                        
-                        if ~isnan(neighbour(3,i))
-                            if isnan(region_matrix(neighbour(3,i)))
-                                pos = pos+1;
-                                region(pos) = neighbour(3,i);
-                                region_matrix(neighbour(3,i)) = nregion;
-                                neighbour(3,i) = nan;
-                            end
-                        end
-                        
-                        if ~isnan(neighbour(4,i))
-                            if isnan(region_matrix(neighbour(4,i)))
-                                pos = pos+1;
-                                region(pos) = neighbour(4,i);
-                                region_matrix(neighbour(4,i)) = nregion;
-                                neighbour(4,i) = nan;
-                            end
-                        end
-                        
-                        if ~isnan(neighbour(5,i))
-                            if isnan(region_matrix(neighbour(5,i)))
-                                pos = pos+1;
-                                region(pos) = neighbour(5,i);
-                                region_matrix(neighbour(5,i)) = nregion;
-                                neighbour(5,i) = nan;
-                            end
-                        end
-                    end
-                end
-            end
-        end
-        region(pos+1:length(region)) = [];
-        % only use points of the region improved in this loop
+        region=cc.PixelIdxList{nregion};
         
         xx_inds = xx_squeeze(region);
         yy_inds = yy_squeeze(region);

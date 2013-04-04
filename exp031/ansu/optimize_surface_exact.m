@@ -145,308 +145,114 @@ for it = 1:nit
     depth_change = nan(yi,xi);
     depth_change_e = nan(yi,xi);
     
+    % flag wet points
     
-    b = zeros(3*xi*yi,1,1);
-    s1 = zeros(3*xi*yi,1);
-    s2 = zeros(3*xi*yi,1);
-    s3 = zeros(3*xi*yi,1);
-    
-    % find grid points which are not continents
-    
-    inds = find(~isnan(n2_ns_squeeze(:)));
-    
-    % build matrix where the ocean gridpoints have their indices and
-    % continet gridpoints nans
-    
-    ng = nan(yi,xi);
-    ng(inds) = inds;
-    
-    % select regions
-    
-    % build neighbour matrix -> build a matrix which is like a look-up
-    % table to see which gridpoints communicate with each other
-    
-    neighbour = nan(5,length(inds));
     wet=~isnan(n2_ns_squeeze);
-    
-    ii=[1:xi*yi]';
-
-    ii(~wet)=nan;
-    jp1=circshift(ii,-1); % j plus one
-    jm1=circshift(ii,1); % j minus one
-    im1=circshift(ii,yi);
-    ip1=circshift(ii,-yi);
-    if strcmp(wrap,'none')
-            im1(1:yi)=nan;
-            ip1(yi*(xi-1)+1:yi*xi)=nan;
-    end
-    neighbour(1,:)=ii(wet);
-    neighbour(4,:)=jp1(wet);
-    neighbour(5,:)=jm1(wet);
-    neighbour(3,:)=im1(wet);
-    neighbour(2,:)=ip1(wet);
-    
-    
-    nregion = 0;
-    region_matrix = nan(yi,xi);
     
     % find independent regions -> a least-squares problem is solved for
     % each of these regions
     
-    while (length(find(~isnan(region_matrix))) ~= length(neighbour))
-        
-        pos = 0;
-        %region = [];
-        region = nan(1,2*length(inds));
-        nregion = nregion + 1;
-        
-        % find starting point of region
-        
-        for i = 1:length(inds)
-            
-            if ~isnan(neighbour(1,i)) && isnan(region_matrix(neighbour(1,i)))
-                pos = pos+1;
-                region(pos) = neighbour(1,i);
-                region_matrix(neighbour(1,i)) = nregion;
-                neighbour(1,i) = nan;
-                
-                if ~isnan(neighbour(2,i))
-                    if isnan(region_matrix(neighbour(2,i)))
-                        pos = pos+1;
-                        region(pos) = neighbour(2,i);
-                        region_matrix(neighbour(2,i)) = nregion;
-                        neighbour(2,i) = nan;
-                    end
-                end
-                
-                if ~isnan(neighbour(3,i))
-                    if isnan(region_matrix(neighbour(3,i)))
-                        pos = pos+1;
-                        region(pos) = neighbour(3,i);
-                        region_matrix(neighbour(3,i)) = nregion;
-                        neighbour(3,i) = nan;
-                    end
-                end
-                
-                if ~isnan(neighbour(4,i))
-                    if isnan(region_matrix(neighbour(4,i)))
-                        pos = pos+1;
-                        region(pos) = neighbour(4,i);
-                        region_matrix(neighbour(4,i)) = nregion;
-                        neighbour(4,i) = nan;
-                    end
-                end
-                
-                if ~isnan(neighbour(5,i))
-                    if isnan(region_matrix(neighbour(5,i)))
-                        pos = pos+1;
-                        region(pos) = neighbour(5,i);
-                        region_matrix(neighbour(5,i)) = nregion;
-                        neighbour(5,i) = nan;
-                    end
-                end
-                
-                break
-                
+    cc=bwconncomp(wet,4);
+    
+    if strcmp(wrap,'long') % in a zonally periodic domain merge regions which are cut apart by grid boundary
+
+        % find regions which have points at western and eastern boundary
+        bdy_wet=false(1,length(cc.PixelIdxList));
+        ireg=1:length(cc.PixelIdxList);
+        for ii=ireg
+            if any(cc.PixelIdxList{ii}<=yi | cc.PixelIdxList{ii}>yi*(xi-1))
+                bdy_wet(ii)=true;
             end
         end
+        iw=ireg(bdy_wet);
         
-        region_old = [];
-        
-        %while(length(region) ~= length(region_old))
-        while(length(region(1:pos)) ~= length(region_old))
-            
-            region_old = region(1:pos);
-            
-            % find all other points of region
-            
-            for i = 1:length(inds)
-                
-                if ~isnan(neighbour(1,i))
-                    
-                    if (region_matrix(neighbour(1,i)) == nregion) %#ok
-                        
-                        if ~isnan(neighbour(1,i))
-                            if isnan(region_matrix(neighbour(1,i)))
-                                pos = pos+1;
-                                region(pos) = neighbour(1,i);
-                                region_matrix(neighbour(1,i)) = nregion;
-                                neighbour(1,i) = nan;
-                            end
-                        end
-                        
-                        if ~isnan(neighbour(2,i))
-                            if isnan(region_matrix(neighbour(2,i)))
-                                pos = pos+1;
-                                region(pos) = neighbour(2,i);
-                                region_matrix(neighbour(2,i)) = nregion;
-                                neighbour(2,i) = nan;
-                            end
-                        end
-                        
-                        if ~isnan(neighbour(3,i))
-                            if isnan(region_matrix(neighbour(3,i)))
-                                pos = pos+1;
-                                region(pos) = neighbour(3,i);
-                                region_matrix(neighbour(3,i)) = nregion;
-                                neighbour(3,i) = nan;
-                            end
-                        end
-                        
-                        if ~isnan(neighbour(4,i))
-                            if isnan(region_matrix(neighbour(4,i)))
-                                pos = pos+1;
-                                region(pos) = neighbour(4,i);
-                                region_matrix(neighbour(4,i)) = nregion;
-                                neighbour(4,i) = nan;
-                            end
-                        end
-                        
-                        if ~isnan(neighbour(5,i))
-                            if isnan(region_matrix(neighbour(5,i)))
-                                pos = pos+1;
-                                region(pos) = neighbour(5,i);
-                                region_matrix(neighbour(5,i)) = nregion;
-                                neighbour(5,i) = nan;
-                            end
-                        end
+        merged=false(1,length(cc.PixelIdxList));
+
+        ii=1;
+        while ii<=length(iw)
+            for jj=1: length(iw)
+                if ii~=jj && ~(merged(iw(ii)) || merged(iw(jj)))
+                    pts1=cc.PixelIdxList{iw(ii)};
+                    pts2=cc.PixelIdxList{iw(jj)};
+                    % check if western boarder of region iw(ii) intersects
+                    % with eastern border of region iw(jj), or vice versa
+                    cond1=~isempty( intersect( pts1(pts1<=yi)+yi*(xi-1),pts2(pts2>yi*(xi-1)) ) );
+                    cond2=~isempty( intersect( pts2(pts2<=yi)+yi*(xi-1),pts1(pts1>yi*(xi-1)) ) );
+                    if cond1 | cond2
+                        cc.PixelIdxList{iw(ii)}=union( pts1, pts2 );
+                        merged(iw(jj))=true; % iw(jj) has been merged into iw(ii); delete later
+                        ii=ii-1; 
+                        break
                     end
                 end
             end
+            ii=ii+1;
         end
-        region(pos+1:length(region)) = [];
-        % only use points of the region improved in this loop
+        % delete merged regions
+        remove=ireg(merged);
+        for ii= remove(end:-1:1)
+            cc.PixelIdxList(ii)=[];
+        end
+    end
+  
+    
+    for nregion=1:length(cc.PixelIdxList)
+       
+        region=cc.PixelIdxList{nregion};
         
-        xx_inds = xx_squeeze(region);
-        yy_inds = yy_squeeze(region);
-        e1t_inds = e1t(region);
-        e2t_inds = e2t(region);
-        
-        % build a matrix where all the points of the region are labelled
-        % with 1,2,....length(region), other regions and continents are
-        % filled with nans
-        
-        ng_region = nan(yi,xi);
-        ng_region(region) = 1:length(region);
-        
-        
-        
+
         %% set up east-west equations for weighted inversion
         
-        neq = 0; % set equation number to 0
-        ieq = 0;
+        reg=false(1,xi*yi)'; 
+        reg(region)=true;
         
-        for i = 1:length(region)
-            
-            [jj,ii] = ind2sub([yi,xi],region(i));
-            
-            switch wrap
-                
-                case {'none'}
-                    
-                    if (ii+1 <= xi) && (~isempty(find(region == ng(jj,ii)))) && (~isempty(find(region == ng(jj,ii+1)))) && (~isnan(xx_inds(ng_region(jj,ii)))) %#ok
-                        
-                        neq = neq + 1;
-                        ieq = ieq + 1;
-                        s1(ieq) = neq;
-                        s2(ieq) = ng_region(jj,ii);
-                        s3(ieq) = -1;
-                        ieq = ieq+1;
-                        s1(ieq) = neq;
-                        s2(ieq) = ng_region(jj,ii+1);
-                        s3(ieq) = 1;
-                        b(neq,1) = xx_inds(ng_region(jj,ii)) * e1t_inds(ng_region(jj,ii));
-                        
-                    end
-                    
-                case {'long'}
-                    
-                    if (ii+1 <= xi)
-                        
-                        if (~isempty(find(region == ng(jj,ii)))) && (~isempty(find(region == ng(jj,ii+1)))) && (~isnan(xx_inds(ng_region(jj,ii)))) %#ok
-                            
-                            neq = neq + 1;
-                            ieq = ieq + 1;
-                            s1(ieq) = neq;
-                            s2(ieq) = ng_region(jj,ii);
-                            s3(ieq) = -1;
-                            ieq = ieq+1;
-                            s1(ieq) = neq;
-                            s2(ieq) = ng_region(jj,ii+1);
-                            s3(ieq) = 1;
-                            b(neq,1) = xx_inds(ng_region(jj,ii)) * e1t_inds(ng_region(jj,ii));
-                            
-                        end
-                        
-                    elseif (ii+1 > xi)
-                        
-                        if (~isempty(find(region == ng(jj,ii))) && ~isempty(find(region == ng(jj,1)))) && (~isnan(xx_inds(ng_region(jj,ii))))%#ok
-                            
-                            neq = neq + 1;
-                            ieq = ieq + 1;
-                            s1(ieq) = neq;
-                            s2(ieq) = ng_region(jj,ii);
-                            s3(ieq) = -1;
-                            ieq = ieq+1;
-                            s1(ieq) = neq;
-                            s2(ieq) = ng_region(jj,1);
-                            s3(ieq) = 1;
-                            b(neq,1) = xx_inds(ng_region(jj,ii)) * e1t_inds(ng_region(jj,ii));
-                            
-                        end
-                        
-                    end
-            end
+        % for forward finite differences only keep equations for points 
+        % wich are in the region and have an eastward neighbour in the region 
+        en= reg & circshift(reg,-yi);
+        if strcmp(wrap,'none')  % remove equations for eastern boundary for zonally-nonperiodic domain
+            bdy_east=false(1,xi*yi); bdy_east(yi*(xi-1)+1:end)=true;
+            en=en & ~bdy_east(:);
         end
+               
+        % j1 are j-indices for matrix coefficient 1
+        sreg=cumsum(reg); % sparse indices of region (points of non-region are indexed with dummy)
+        sreg_en=circshift(sreg,-yi); % sparse indices of eastward neighbours
+        j1_ew=sreg_en(en); % keep only those with eastward neighbour in the region
+       
+        j2_ew=sreg(en); % j2 are j-indices for matrix coefficient -1
         
+
         %% set up north-south equations for weighted inversion
         
-        for i = 1:length(region)
-            
-            [jj,ii] = ind2sub([yi,xi],region(i));
-            
-            if (jj+1 <= yi) && (~isempty(find(region == ng(jj,ii)))) && ~isempty(find(region == ng(jj+1,ii))) && (~isnan(yy_inds(ng_region(jj,ii))))%#ok
-                
-                neq = neq + 1;
-                ieq = ieq + 1;
-                s1(ieq) = neq;
-                s2(ieq) = ng_region(jj,ii);
-                s3(ieq) = -1;
-                ieq = ieq + 1;
-                s1(ieq) = neq;
-                s2(ieq) = ng_region(jj+1,ii);
-                s3(ieq) = 1;
-                b(neq,1) = yy_inds(ng_region(jj,ii)) * e2t_inds(ng_region(jj,ii));
-            end
-        end
+        nn= reg & circshift(reg,-1); % true if northward neighbour is in the region
+        % remove equations for northern boundary
+        bdy_north=false(1,xi*yi); bdy_north(yi:yi:yi*xi)=true;
+        nn=nn & ~bdy_north(:);
+
+        sreg_nn=circshift(sreg,-1);
+        j1_ns=sreg_nn(nn);
         
-        % make the average of all density changes zero -> this should keep
-        % the surface from drifting away from the initial condition
+        j2_ns=sreg(nn);
         
-        neq = neq + 1;
-        %stef: this can stop the surface of drifting away. We might change
-        % that to a different condition.
-        for i = 1:length(region)
-            [jj,ii] = ind2sub([yi,xi],region(i));
-            ieq = ieq + 1;
-            s1(ieq) = neq;
-            s2(ieq) = ng_region(jj,ii);
-            s3(ieq) = 1;
-        end
+        j2=[j2_ew',j2_ns'];
         
-        b(neq,1) = 0;
         
-        % cut A and b to appropriate size
+        %% make the average of all density changes zero 
+        % this should keep the surface from drifting away from the initial condition
+        % we might change that to a different condition
         
-        s1 = s1(1:ieq);
-        s2 = s2(1:ieq);
-        s3 = s3(1:ieq);
-        b = b(1:neq,1);
+        j1_condition=[1:sum(reg)];
+        j1=[j1_ew',j1_ns',j1_condition];
         
-        % make matrix sparse and invert
         
-        A = sparse(s1,s2,s3);
-        b = sparse(b);
+        i2=1:(sum(en)+sum(nn)); % i-indices for matrix coeff. -1
+        i1=[i2, (sum(en)+sum(nn)+1)*ones(1,sum(reg))];
+        
+        % build sparse matrices
+        A=sparse([i1,i2],[j1,j2],[ones(1,length(i1)),-ones(1,length(i2))]);
+        b=sparse( [xx_squeeze(en).*e1t(en); yy_squeeze(nn).*e2t(nn); 0 ]);
+        
+
         
         disp(['solving for region ',int2str(nregion)]);
         %stef: 'exact' gets to the solution quicker but requires more

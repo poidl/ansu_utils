@@ -574,7 +574,7 @@ for it = 1:nit
         A = sparse(s1,s2,s3);
         b = sparse(b);
         
-        % disp(['solving for region ',int2str(nregion)]);
+        disp(['solving for region ',int2str(nregion)]);
         %stef: 'exact' gets to the solution quicker but requires more
         %memory
         switch solver

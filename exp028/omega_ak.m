@@ -16,7 +16,7 @@ settings.grid = 'bgrid';
 settings.wrap = 'long';
 settings.slope = 'epsilon'; % density gradient error
 settings.solver = 'iterative';
-settings.nit = 21;
+settings.nit = 7;
 
 glevels=[27.5]
 
@@ -61,7 +61,7 @@ mld(1,1:yi,1:xi) = mld(sa,ct,p);
 display('optimizing density surface');
 tic
 [sns_i(Iak,:,:),ctns_i(Iak,:,:),pns_i(Iak,:,:),ithist] = optimize_surface_exact(sa,ct,p,g,n2,sns(Iak,:,:),ctns(Iak,:,:),pns(Iak,:,:),e1t,e2t,settings);
-display(['optimizing density surface took ',int2str(toc),' seconds']);
+display(['optimizing density surface took ',num2str(toc),' seconds']);
 
 % save variables for postprocessing 
 save('data/ansu_hist.mat', 'ithist')
