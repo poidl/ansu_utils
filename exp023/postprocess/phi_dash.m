@@ -91,7 +91,9 @@ for icolorscale=1:2
                 %vp=vp/cmax2;
 
                 h=imagesc(lon,lat,vp);
-                colormap([fliplr(colormap('hot'));flipud(hot)]) ;
+                cmp=colormap(hot(128));
+                cmp2=cmp(find(cmp(:,1)==1,1,'first')-15:end,:);
+                colormap([fliplr(cmp2);flipud(cmp2)]) ;
                 caxis([-1 1])
                 cbh(isp)=colorbar('Location','SouthOutside','position',[left,bottom-0.4*wsrow,spwidth,0.1*wsrow]);
                 if isp==6 % 
