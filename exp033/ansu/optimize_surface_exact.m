@@ -252,7 +252,8 @@ for it = 1:nit
         A=sparse([i1,i2],[j1,j2],[ones(1,length(i1)),-ones(1,length(i2))]);
         b=sparse( [xx_squeeze(en).*e1t(en); yy_squeeze(nn).*e2t(nn); 0 ]);
         
-
+        sprank(A)
+        sum(reg)
         
         disp(['solving for region ',int2str(nregion)]);
         %stef: 'exact' gets to the solution quicker but requires more

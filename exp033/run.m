@@ -14,8 +14,8 @@ subsample_gk_ak_gamma;
 omega_ak
 
 % plot
-phi_dash
-error_measure
+%phi_dash
+%error_measure
 
 
 
