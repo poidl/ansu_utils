@@ -23,15 +23,6 @@ function [sns_i,ctns_i,pns_i] = optimize_surface_exact(s,ct,p,g,n2,sns,ctns,pns,
     %           e1t         grid length in meters in x-direction
     %           e2t         grid length in meters in y-direction
     %
-    % %           settings    set in main window.
-    % %           nit         maximum number of iterations is set to 150
-    % %           choice      choice between
-    % %                       's' slope error
-    % %                       'epsilon' density gradient error
-    % %           wrap        'none'
-    % %                       'long'
-    % %           solver      'iterative'
-    % %                       'exact'
     % Output:   sns_i       salinity on optimized surface
     %           ctns_i      conservative temperature on optimized surface
     %           pns_i       pressure on optimized surface
@@ -54,7 +45,7 @@ function [sns_i,ctns_i,pns_i] = optimize_surface_exact(s,ct,p,g,n2,sns,ctns,pns,
     %   type 'analyze_surface_version' for version details
     %
 
-    settings;
+    user_input;
     [zi,yi,xi] = size(s);
 
     % prepare data
@@ -66,7 +57,7 @@ function [sns_i,ctns_i,pns_i] = optimize_surface_exact(s,ct,p,g,n2,sns,ctns,pns,
     while it<=nit;
 
         % calculate slope errors/density gradient errors
-        [ss,sx,sy,curl_s,ee,ex,ey,curl_e,ver] = slope_error(p,g,n2,sns,ctns,pns,e1t,e2t,'bp',wrap); %#ok
+        [ss,sx,sy,curl_s,ee,ex,ey,curl_e,ver] = slope_error(p,g,n2,sns,ctns,pns,e1t,e2t,'bp'); %#ok
 
         % diagnose
         if save_iterations;
@@ -97,10 +88,8 @@ function [sns_i,ctns_i,pns_i] = optimize_surface_exact(s,ct,p,g,n2,sns,ctns,pns,
         n2_ns = var_on_surf(pns,p_mid,n2);
 
         % disregard data above mixed layer depth
-        if it>0;
-            xx(pns<= cut_off_choice)=nan;
-            yy(pns<= cut_off_choice)=nan;
-        end
+        xx(pns<= cut_off_choice)=nan;
+        yy(pns<= cut_off_choice)=nan;
         n2_ns(pns<=cut_off_choice)=nan;
         pns(pns<=cut_off_choice)=nan;
 
@@ -129,7 +118,7 @@ end
 
 
 function phiprime=solve_lsqr(regions, xx, yy, e1t, e2t)
-    settings;
+    user_input;
     [yi,xi]=size(xx);
     phiprime = nan(yi,xi);
 
@@ -142,7 +131,7 @@ function phiprime=solve_lsqr(regions, xx, yy, e1t, e2t)
         reg(region)=true;
         
         en= reg & circshift(reg,-yi); % find points where finite differences can be computed
-        if strcmp(wrap,'none')  % remove equations for eastern boundary for zonally-nonperiodic domain
+        if ~zonally_periodic;  % remove equations for eastern boundary for zonally-nonperiodic domain
             not_bdy_east=true(1,xi*yi); not_bdy_east(yi*(xi-1)+1:end)=false;
             en=en & not_bdy_east(:);
         end
@@ -213,9 +202,6 @@ function [sns_out,ctns_out,pns_out] = dz_from_phiprime(sns, ctns, pns, s, ct, p,
     
     inds=1:yi*xi;
     fr=true(1,yi*xi);
-    s_tmp=s;
-    ct_tmp=ct;
-    p_tmp=p;
     pns_out = nan(1,yi,xi);
     sns_out = nan(1,yi,xi);
     ctns_out = nan(1,yi,xi);
@@ -239,7 +225,7 @@ function [sns_out,ctns_out,pns_out] = dz_from_phiprime(sns, ctns, pns, s, ct, p,
         end
         
         inds=inds(fr); % points where surface has not been corrected
-        t1=gsw_rho(s_tmp(:,:),ct_tmp(:,:),pns_stacked(:,inds)); % 3-d density referenced to pressure of the current surface
+        t1=gsw_rho(s(:,:),ct(:,:),pns_stacked(:,inds)); % 3-d density referenced to pressure of the current surface
         t2_3d=t2_stacked_full(:,inds); %
         tni=t1-t2_3d; % rho-(rho_s+rho'); find corrected surface by finding roots of this term
         
@@ -255,9 +241,9 @@ function [sns_out,ctns_out,pns_out] = dz_from_phiprime(sns, ctns, pns, s, ct, p,
         lminr=lminr+stack*[0:size(Itni_n,2)-1];
         lminr=lminr(final);
         
-        sns_out(inds(final))=s_tmp(lminr); % adjust surface where root has already been found
-        ctns_out(inds(final)) =ct_tmp(lminr);
-        pns_out(inds(final)) =p_tmp(lminr);
+        sns_out(inds(final))=s(lminr); % adjust surface where root has already been found
+        ctns_out(inds(final)) =ct(lminr);
+        pns_out(inds(final)) =p(lminr);
 
 
         if all(~fr) % break out of loop if all roots have been found
@@ -268,17 +254,17 @@ function [sns_out,ctns_out,pns_out] = dz_from_phiprime(sns, ctns, pns, s, ct, p,
         k=k+stack*[0:size(Itni_n,2)-1];
         k=k(fr); 
         
-        ds_ =  ( s_tmp(k+1) - s_tmp(k))/refine_ints; % increase resolution in the vertical
-        dct_ = (ct_tmp(k+1) - ct_tmp(k))/refine_ints;
-        dp_ =  (p_tmp(k+1) - p_tmp(k))/refine_ints;
+        ds_ =  ( s(k+1) - s(k))/refine_ints; % increase resolution in the vertical
+        dct_ = (ct(k+1) - ct(k))/refine_ints;
+        dp_ =  (p(k+1) - p(k))/refine_ints;
 
         ds_ =bsxfun(@times, ds_, [0:refine_ints]');
         dct_ = bsxfun(@times, dct_, [0:refine_ints]');
         dp_ = bsxfun(@times, dp_, [0:refine_ints]');
 
-        s_tmp =  bsxfun(@plus,s_tmp(k),ds_);
-        ct_tmp =  bsxfun(@plus,ct_tmp(k),dct_);
-        p_tmp =  bsxfun(@plus,p_tmp(k),dp_);
+        s =  bsxfun(@plus,s(k),ds_);
+        ct =  bsxfun(@plus,ct(k),dct_);
+        p =  bsxfun(@plus,p(k),dp_);
 
     end
 end
@@ -286,7 +272,7 @@ end
 
 function regions=find_regions(vv)
 
-    settings;
+    user_input;
     [yi,xi]=size(vv);
     
     % flag wet points (mixed layer excluded)
@@ -294,7 +280,7 @@ function regions=find_regions(vv)
     
     cc=bwconncomp(wet,4);
 
-    if strcmp(wrap,'long') % in a zonally periodic domain merge regions which are cut apart by grid boundary
+    if zonally_periodic; % in a zonally periodic domain merge regions which are cut apart by grid boundary
 
         % find regions which have points at western and eastern boundary
         bdy_wet=false(1,length(cc.PixelIdxList));
@@ -340,8 +326,8 @@ end
 
 
 function diagnose_and_write(it,sns,ctns,pns,ex,ey,phiprime_e)
-    settings; % read nit, choice, etc.
-    
+    user_input; % read nit, choice, etc.
+
     if it==0 % initialize
         [gi,yi,xi]=size(sns);
         slope_square = nan(nit+1,1);
@@ -354,10 +340,10 @@ function diagnose_and_write(it,sns,ctns,pns,ex,ey,phiprime_e)
 
         
         vars = {'sns_hist','ctns_hist','pns_hist','eps_rms_hist','phiprime_e_hist'};
-        save('data/iteration_history.mat', vars{:},'-v7.3');
+        save(history_file, vars{:},'-v7.3');
     end
     
-    iteration_history = matfile('data/iteration_history.mat','Writable',true);
+    iteration_history = matfile(history_file,'Writable',true);
     iteration_history.sns_hist(it+1,:,:) = sns;
     iteration_history.ctns_hist(it+1,:,:) = ctns;
     iteration_history.pns_hist(it+1,:,:) = pns;   
@@ -367,7 +353,7 @@ function diagnose_and_write(it,sns,ctns,pns,ex,ey,phiprime_e)
     end
     
     if strcmp(choice, 'epsilon')
-        square = ex .* ex + ey .* ey;
+        square = ex .* ex + ey .* ey; % ex and ey are defined on different grids, but this is not relevant for calculating the root-mean-square
         slope_square(it+1,1) = nansum(square(:));
         no_pts = length(find(~isnan(square(:))));
         iteration_history.eps_rms_hist(it+1,1) = sqrt(slope_square(it+1,1)/no_pts);

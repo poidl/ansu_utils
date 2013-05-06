@@ -76,13 +76,12 @@ switch keyword
 
         [gradx_ct,grady_ct] = grad_surf(ctns,e1t,e2t,'op',wrap);
         [gradx_s,grady_s] = grad_surf(sns,e1t,e2t,'op',wrap);
-        
-        if size(sns,1)>1; % TODO gsw_rho_alpha_beta can't handle input of size (1,yi,xi)
-            [dummy,alpha,beta]=gsw_rho_alpha_beta(sns,ctns,pns);
-        else
-            [dummy,alpha(1,:,:),beta(1,:,:)]=gsw_rho_alpha_beta(squeeze(sns),squeeze(ctns),squeeze(pns));
-        end  
 
+        [zz,yy,xx]=size(sns);
+        [dummy,alpha,beta]=gsw_rho_alpha_beta(sns(:,:),ctns(:,:),pns(:,:));
+        alpha=reshape(alpha,[zz,yy,xx]);
+        beta=reshape(beta,[zz,yy,xx]);
+        
         % calculate density gradient errors (epsilon)
 
         ex = ((beta .* gradx_s) - (alpha .* gradx_ct));
@@ -109,11 +108,10 @@ switch keyword
         [gradx_ct,grady_ct] = grad_surf(ctns,e1t,e2t,'bp',wrap);
         [gradx_s,grady_s] = grad_surf(sns,e1t,e2t,'bp',wrap);
         
-        if size(sns,1)>1; % TODO gsw_rho_alpha_beta can't handle input of size (1,yi,xi) 
-            [dummy,alpha,beta]=gsw_rho_alpha_beta(sns,ctns,pns);
-        else
-            [dummy,alpha(1,:,:),beta(1,:,:)]=gsw_rho_alpha_beta(squeeze(sns),squeeze(ctns),squeeze(pns));
-        end  
+        [zz,yy,xx]=size(sns);
+        [dummy,alpha,beta]=gsw_rho_alpha_beta(sns(:,:),ctns(:,:),pns(:,:));
+        alpha=reshape(alpha,[zz,yy,xx]);
+        beta=reshape(beta,[zz,yy,xx]);
 
         alpha_x(1:gi,1:yi,1:xi-1) = 0.5 * (alpha(1:gi,1:yi,1:xi-1) + alpha(1:gi,1:yi,2:xi));
         alpha_y(1:gi,1:yi-1,1:xi) = 0.5 * (alpha(1:gi,1:yi-1,1:xi) + alpha(1:gi,2:yi,1:xi));
@@ -141,8 +139,10 @@ switch keyword
                 fac_y(1:gi,yi,1:xi) = nan;
 
             case 'long'
-
+                size(alpha_x)
+               
                 alpha_x(1:gi,1:yi,xi) = 0.5 * (alpha(1:gi,1:yi,xi) + alpha(1:gi,1:yi,1));
+                size(alpha_x)
                 beta_x(1:gi,1:yi,xi) = 0.5 * (beta(1:gi,1:yi,xi) + beta(1:gi,1:yi,1));
                 fac_x(1:gi,1:yi,xi) = 0.5 * (fac_tmp(1:gi,1:yi,xi) + fac_tmp(1:gi,1:yi,1));
                 alpha_y(1:gi,yi,1:xi) = nan;

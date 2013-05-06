@@ -66,7 +66,7 @@ function [sns_i,ctns_i,pns_i] = optimize_surface_exact(s,ct,p,g,n2,sns,ctns,pns,
     while it<=nit;
 
         % calculate slope errors/density gradient errors
-        [ss,sx,sy,curl_s,ee,ex,ey,curl_e,ver] = slope_error(p,g,n2,sns,ctns,pns,e1t,e2t,'bp',wrap); %#ok
+        [ss,sx,sy,curl_s,ee,ex,ey,curl_e,ver] = slope_error(p,g,n2,sns,ctns,pns,e1t,e2t,'bp'); %#ok
 
         % diagnose
         if save_iterations;
@@ -367,7 +367,7 @@ function diagnose_and_write(it,sns,ctns,pns,ex,ey,phiprime_e)
     end
     
     if strcmp(choice, 'epsilon')
-        square = ex .* ex + ey .* ey;
+        square = ex .* ex + ey .* ey; % ex and ey are defined on different grids, but this is not relevant for calculating the root-mean-square
         slope_square(it+1,1) = nansum(square(:));
         no_pts = length(find(~isnan(square(:))));
         iteration_history.eps_rms_hist(it+1,1) = sqrt(slope_square(it+1,1)/no_pts);
