@@ -20,7 +20,7 @@ r_idea=(cp-1)./ pp1;
 %cutoff=r_idea<1-cut | r_idea>1+cut;
 %r_idea(cutoff)=nan;
 
-it=2
+it=21
 v=r_idea(it,:,:)
 hist(v(:),50)
 ylim([0 5])
