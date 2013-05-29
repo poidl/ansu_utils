@@ -3,5 +3,4 @@ ansu_utils
 
 pre- and post-processing scripts for ansu
 
-
-[![alt text](http://www.hoitaus.com/track/track.png "tracking")](http://www.hoitaus.com/track/track.png)
+[![githalytics.com alpha](https://cruel-carlota.pagodabox.com/3786e48de85b708fb78b83499265e7b0 "githalytics.com")](http://githalytics.com/poidl/ansu_utils)
