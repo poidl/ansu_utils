@@ -40,6 +40,7 @@ function [sns_i,ctns_i,pns_i] = optimize_surface_exact(s,ct,p,g,n2,sns,ctns,pns,
     %   This is part of the analyze_surface toolbox, (C) 2009 A. Klocker
     %   Partially modified by P. Barker (2010-13)
     %   Partially modified by S. Riha (2013)
+%   Principal investigator: Trevor McDougall
     %   type 'help analyze_surface' for more information
     %   type 'analyze_surface_license' for license details
     %   type 'analyze_surface_version' for version details

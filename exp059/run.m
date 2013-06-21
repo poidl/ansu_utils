@@ -14,10 +14,11 @@ subsample_gk_ak_gamma;
 omega_ak
 
 % plot
- %pressure_ns
+% pressure_ns
  %delta_pressure_ns
- %phi_prime
+% phi_prime
  %error_measure
+%  corr_rIdeal_multiple_pics
 
 
 

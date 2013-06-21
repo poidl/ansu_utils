@@ -1,4 +1,4 @@
-zonally_periodic=true;
+zonally_periodic=false;
 choice= 'epsilon'; % density gradient error
 solver = 'iterative';
 nit = 21;

@@ -33,7 +33,7 @@ pns_i = nan(length(glevels),yi,xi);
 display('optimizing density surface');
 tic
 %dbstop in optimize_surface_exact at 624
-%dbstop in optimize_surface_exact at 69
+dbstop in optimize_surface_exact at 179
 [sns_i(Iak,:,:),ctns_i(Iak,:,:),pns_i(Iak,:,:)] = optimize_surface_exact(sa,ct,p,g,n2,sns(Iak,:,:),ctns(Iak,:,:),pns(Iak,:,:),e1t,e2t);
 display(['optimizing density surface took ',num2str(toc),' seconds']);
 
