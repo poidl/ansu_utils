@@ -222,7 +222,7 @@ k=sum(Itni_n,1); % find indices of flattened 3d-array where we use root finding
 k=k+stack*[0:size(Itni_n,2)-1];
 
 
-options=optimset('TolX',1e-3);
+%options=optimset('TolX',1e-3);
 for ii=inds(fr);
     su=s(k(ii)); sl=s(k(ii)+1); % linear interpolation of s and ct
     ctu=ct(k(ii)); ctl=ct(k(ii)+1);
@@ -235,7 +235,8 @@ for ii=inds(fr);
     
     %dmyrho_normalized=@(p,su,sl,ctu,ctl,pu,pl)  1.*(gsw_rho( su+(sl-su)*(p-pu)/(pl-pu), ctu+(ctl-ctu)*(p-pu)/(pl-pu), pns(ii))-t2(ii));
     %drho_normalized=@(p) dmyrho_normalized(p,su,sl,ctu,ctl,pu,pl);
-    proot=fzero(drho_normalized, [pu,pl],options);
+    %proot=fzero(drho_normalized, [pu,pl],options);
+    proot=fzero(drho_normalized, [pu,pl]);
     
     sns_out(ii)= su+(sl-su)*(proot-pu)/(pl-pu);
     ctns_out(ii)=ctu+(ctl-ctu)*(proot-pu)/(pl-pu);
