@@ -167,16 +167,18 @@ elseif (e<0&&c<n)
     ctp=@(p) ctu+(ctl-ctu)*(p-pu)/(pl-pu);
     
     pc=@(pmid) 2*pmid-p0; % pressure on cast, as a function of mid-pressure (and the paramter p0; bottle pressure)
-    %fac=1./sqrt(gsw_rho(su,ctu,pu)^2+gsw_rho(sl,ctl,pl)^2); % scale to avoid having to set tolerance ?
-    fac=1;
+    fac=1./sqrt(gsw_rho(su,ctu,pu)^2+gsw_rho(sl,ctl,pl)^2); % scale to avoid having to set tolerance ?
+    %fac=1;
     func_normalized=@(pmid)  fac.*(gsw_rho(sp(pc(pmid)), ctp(pc(pmid)), pmid) -gsw_rho(SA0,CT0,pmid));
     
+    %options=optimset('TolX',0.001);
+    %proot=fzero(func_normalized, [pu,pl],options);
     proot=fzero(func_normalized, [pu,pl]);
     
-    SAns= su+(sl-su)*(proot-pu)/(pl-pu);
-    CTns=ctu+(ctl-ctu)*(proot-pu)/(pl-pu);
-    pns=proot;
-    
+    pns=pc(proot);
+    SAns= su+(sl-su)*(pns-pu)/(pl-pu);
+    CTns=ctu+(ctl-ctu)*(pns-pu)/(pl-pu);
+        
 %     %3)Developping some Newton-Raphson iteration
 %     while success == 0
 %         iter = iter + 1;
@@ -255,7 +257,7 @@ elseif (e>0&&c>1)
         success =1;
     end
     
-    %3) find zero crossing with fzero
+     %3) find zero crossing with fzero
 
     su=SA(c); sl=SA(c+1); % linear interpolation of s and ct
     ctu=CT(c); ctl=CT(c+1);
@@ -265,15 +267,18 @@ elseif (e>0&&c>1)
     ctp=@(p) ctu+(ctl-ctu)*(p-pu)/(pl-pu);
     
     pc=@(pmid) 2*pmid-p0; % pressure on cast, as a function of mid-pressure (and the paramter p0; bottle pressure)
-    %fac=1./sqrt(gsw_rho(su,ctu,pu)^2+gsw_rho(sl,ctl,pl)^2); % scale to avoid having to set tolerance ?
-    fac=1;
+    fac=1./sqrt(gsw_rho(su,ctu,pu)^2+gsw_rho(sl,ctl,pl)^2); % scale to avoid having to set tolerance ?
+    %fac=1;
     func_normalized=@(pmid)  fac.*(gsw_rho(sp(pc(pmid)), ctp(pc(pmid)), pmid) -gsw_rho(SA0,CT0,pmid));
     
+    %options=optimset('TolX',0.001);
+    %proot=fzero(func_normalized, [pu,pl],options);
     proot=fzero(func_normalized, [pu,pl]);
     
-    SAns= su+(sl-su)*(proot-pu)/(pl-pu);
-    CTns=ctu+(ctl-ctu)*(proot-pu)/(pl-pu);
-    pns=proot;
+    pns=pc(proot);
+    SAns= su+(sl-su)*(pns-pu)/(pl-pu);
+    CTns=ctu+(ctl-ctu)*(pns-pu)/(pl-pu);
+    
     
 %     %3) Developping some Newton-Raphson iterations
 %     while success == 0

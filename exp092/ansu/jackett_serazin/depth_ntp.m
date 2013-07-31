@@ -60,7 +60,7 @@ if ~(nargin == 6)
    error('depth_ntp:  Requires three inputs')
 end
 if ~(nargout == 3)
-   error('depth_ntp:  Requires two outputs')
+   error('depth_ntp:  Requires three outputs')
 end 
 
 [msb,nsb] = size(SA0);
@@ -77,13 +77,13 @@ end
 if (mt ~= ms || mt ~= mp || ns ~= nt || ns ~= np)
     error('depth_ntp: SA and CT must have same dimensions')
 end
-if(ms*mt*mp == 1 && ns*nt*np ~=1)
-    if(ms*mt*mp ~= 1 && ns*nt*np ==1)
-        error('depth_ntp: Inputs array dimensions arguments do not agree')
-    else
-        error('depth_ntp: There must be at least 2 bottles')
-    end
-end
+% if(ms*mt*mp == 1 && ns*nt*np ~=1)
+%     if(ms*mt*mp ~= 1 && ns*nt*np ==1)
+%         error('depth_ntp: Inputs array dimensions arguments do not agree')
+%     else
+%         error('depth_ntp: There must be at least 2 bottles')
+%     end
+% end
 
 
 %--------------------------------------------------------------------------
@@ -167,55 +167,16 @@ elseif (e<0&&c<n)
     ctp=@(p) ctu+(ctl-ctu)*(p-pu)/(pl-pu);
     
     pc=@(pmid) 2*pmid-p0; % pressure on cast, as a function of mid-pressure (and the paramter p0; bottle pressure)
-    %fac=1./sqrt(gsw_rho(su,ctu,pu)^2+gsw_rho(sl,ctl,pl)^2); % scale to avoid having to set tolerance ?
-    fac=1;
+    fac=1./sqrt(gsw_rho(su,ctu,pu)^2+gsw_rho(sl,ctl,pl)^2); % scale to avoid having to set tolerance ?
+    %fac=1;
     func_normalized=@(pmid)  fac.*(gsw_rho(sp(pc(pmid)), ctp(pc(pmid)), pmid) -gsw_rho(SA0,CT0,pmid));
     
-    proot=fzero(func_normalized, [pu,pl]);
+    proot=fzero(func_normalized, 0.5*(p0+[pu,pl]));
     
-    SAns= su+(sl-su)*(proot-pu)/(pl-pu);
-    CTns=ctu+(ctl-ctu)*(proot-pu)/(pl-pu);
-    pns=proot;
+    pns=pc(proot);
+    SAns= su+(sl-su)*(pns-pu)/(pl-pu);
+    CTns=ctu+(ctl-ctu)*(pns-pu)/(pl-pu);
     
-%     %3)Developping some Newton-Raphson iteration
-%     while success == 0
-%         iter = iter + 1;
-%         [SAc0,CTc0] = stp_interp([SA(c),SA(c_d)],[CT(c),CT(c_d)],[p(c),p(c_d)],pc0);
-%         [sigl,sigu] = sig_vals(SA0,CT0,p0,SAc0,CTc0,pc0);
-%         ec0 = sigu - sigl;
-%         p1 = 0.5*(p(c) + pc0);
-%         ez1 = (e- ec0)/(pc0 - p(c));
-%         p2 = 0.5*(pc0 + p(c_d));
-%         ez2 = (ec0 - e_d)/(p(c_d) - pc0);
-%         r = (pc0 - p1)/(p2 - p1);
-%         ecz_0 = ez1 + r*(ez2 - ez1);
-%         if iter == 1
-%             ecz0 = ecz_0;
-%         else
-%             ecz0 = -(ec0 - ec_0)/(pc0 - pc_0);
-%             if ecz0 == 0
-%                 ecz0 = ecz_0;
-%             end
-%         end
-%         pc1 = pc0 + ec0/ecz0;
-%         eps = abs(pc1 - pc0);
-%         %Testing the accuracy
-%         if abs(ec0) <= 5e-5 && eps <= 5e-3
-%             SAns = SAc0;
-%             CTns = CTc0;
-%             pns = pc0;
-%             success = 1;
-%             niter = iter;
-%         elseif iter > 10
-%             [SAns,CTns,pns,niter] = e_solve(SA,CT,p,[e e_d],[c c_d],SA0,CT0,p0);
-%             success = 1;
-%         else
-%             pc_0 = pc0;
-%             ec_0 = ec0;
-%             pc0 = pc1;
-%             success = 0;
-%         end
-%     end
     
 %Case when starting point is denser than the bottle
 %--------------------------------------------------
@@ -257,63 +218,24 @@ elseif (e>0&&c>1)
     
     %3) find zero crossing with fzero
 
-    su=SA(c); sl=SA(c+1); % linear interpolation of s and ct
-    ctu=CT(c); ctl=CT(c+1);
-    pu=p(c); pl=p(c+1);
+    su=SA(c-1); sl=SA(c); % linear interpolation of s and ct
+    ctu=CT(c-1); ctl=CT(c);
+    pu=p(c-1); pl=p(c);
     
     sp=@(p) su+(sl-su)*(p-pu)/(pl-pu); % linear interpolation of s and ct
     ctp=@(p) ctu+(ctl-ctu)*(p-pu)/(pl-pu);
     
     pc=@(pmid) 2*pmid-p0; % pressure on cast, as a function of mid-pressure (and the paramter p0; bottle pressure)
-    %fac=1./sqrt(gsw_rho(su,ctu,pu)^2+gsw_rho(sl,ctl,pl)^2); % scale to avoid having to set tolerance ?
-    fac=1;
+    fac=1./sqrt(gsw_rho(su,ctu,pu)^2+gsw_rho(sl,ctl,pl)^2); % scale to avoid having to set tolerance ?
+    %fac=1;
     func_normalized=@(pmid)  fac.*(gsw_rho(sp(pc(pmid)), ctp(pc(pmid)), pmid) -gsw_rho(SA0,CT0,pmid));
     
-    proot=fzero(func_normalized, [pu,pl]);
+    proot=fzero(func_normalized, 0.5*(p0+[pu,pl]));
     
-    SAns= su+(sl-su)*(proot-pu)/(pl-pu);
-    CTns=ctu+(ctl-ctu)*(proot-pu)/(pl-pu);
-    pns=proot;
+    pns=pc(proot);
+    SAns= su+(sl-su)*(pns-pu)/(pl-pu);
+    CTns=ctu+(ctl-ctu)*(pns-pu)/(pl-pu);
     
-%     %3) Developping some Newton-Raphson iterations
-%     while success == 0
-%         iter = iter + 1;
-%         [SAc0,CTc0] = stp_interp([SA(c_s),SA(c)],[CT(c_s),CT(c)],[p(c_s),p(c)],pc0);
-%         [sigl,sigu] = sig_vals(SA0,CT0,p0,SAc0,CTc0,pc0);
-%         ec0 = sigu - sigl;
-%         p1 = 0.5*(p(c_s) + pc0);
-%         ez1 = (e_s- ec0)/(pc0 - p(c_s));
-%         p2 = 0.5*(pc0 + p(c));
-%         ez2 = (ec0 - e)/(p(c) - pc0);
-%         r = (pc0 - p1)/(p2 - p1);
-%         ecz_0 = ez1 + r*(ez2 - ez1);
-%         if iter == 1
-%             ecz0 = ecz_0;
-%         else
-%             ecz0 = -(ec0 - ec_0)/(pc0 - pc_0);
-%             if ecz0 == 0
-%                 ecz0 = ecz_0;
-%             end
-%         end
-%         pc1 = pc0 + ec0/ecz0;
-%         eps = abs(pc1 - pc0);
-%         %Testing the accuracy
-%         if abs(ec0) <= 5e-5 && eps <= 5e-3
-%             SAns = SAc0;
-%             CTns = CTc0;
-%             pns = pc0;
-%             success = 1;
-%             niter = iter;
-%         elseif iter > 10
-%             [SAns,CTns,pns,niter] = e_solve(SA,CT,p,[e_s e],[c_s c],SA0,CT0,p0);
-%             success = 1;
-%         else
-%             pc_0 = pc0;
-%             ec_0 = ec0;
-%             pc0 = pc1;
-%             success = 0;
-%         end
-%     end
 else
     SAns = NaN;
     CTns = NaN;
