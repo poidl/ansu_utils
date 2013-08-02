@@ -5,14 +5,6 @@ addpath(genpath('../../../stabilization_paul'))
 close all;
 clear all;
 
-s1=37;
-ct1=14.;
-p1=0;
-
-s2=36;
-ct2=13.9;
-p2=2000;
-
 
 s3=33.4552;
 ct3=-1.7425;
@@ -23,6 +15,10 @@ s12=sc;
 ct12=ctc;
 p12=pc;
 
+ii=2;
+s12=s12(1:ii);
+ct12=ct12(1:ii);
+p12=p12(1:ii);
 
 s3_=s3*ones(size(p12));
 ct3_=ct3*ones(size(p12));
@@ -34,12 +30,15 @@ hold on
 plot([0 0],get(gca,'ylim')) 
 hold off
 
-%[a,b,c]=depth_ntp_orig(s3,ct3,p3,[33 34]',[-1 -2]',[0 100]')
-%[a,b,c]=depth_ntp(s3,ct3,p3,[33 34]',[-1 -2]',[0 100]')
-
-
-%[a,b,c]=depth_ntp_orig(s3,ct3,p3,s12,ct12,p12)
-%[a,b,c]=depth_ntp_jackett(s3,ct3,p3,s12,ct12,p12)
-%[a,b,c]=depth_ntp_new(s3,ct3,p3,s12,ct12,p12)
-%[a,b,c]=depth_ntp(s3,ct3,p3,s12,ct12,p12)
+disp('Method             SA       CT       P')
+[SAns,CTns,pns] = depth_ntp_jackett(s3,ct3,p3,s12',ct12',p12');
+disp(['Jackett:           ',num2str(SAns), '  ', num2str(CTns), '  ', num2str(pns)])
+[SAns,CTns,pns] = depth_ntp_guillaume(s3,ct3,p3,s12',ct12',p12');
+disp(['Guillaume:         ',num2str(SAns), '  ', num2str(CTns), '  ', num2str(pns)])
+[SAns,CTns,pns] = depth_ntp_jackett_fzero(s3,ct3,p3,s12',ct12',p12');
+disp(['Jackett   (fzero): ',num2str(SAns), '  ', num2str(CTns), '  ', num2str(pns)])
+%[SAns,CTns,pns] = depth_ntp_guillaume_fzero(s3,ct3,p3,s12',ct12',p12');
+%disp(['Guillaume (fzero): ',num2str(SAns), '  ', num2str(CTns), '  ', num2str(pns)])
+[SAns,CTns,pns] = depth_ntp_iter(s3,ct3,p3,s12,ct12,p12);
+disp(['depth_ntp_iter:    ',num2str(SAns), '  ', num2str(CTns), '  ', num2str(pns)])
 

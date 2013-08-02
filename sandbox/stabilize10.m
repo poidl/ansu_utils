@@ -5,13 +5,18 @@ addpath(genpath('../../../stabilization_paul'))
 close all;
 clear all;
 
-s1=37;
-ct1=14.;
-p1=0;
+load cast.mat
+s12=sc;
+ct12=ctc;
+p12=pc;
 
-s2=36;
-ct2=13.9;
-p2=2000;
+s1=sc(1);
+ct1=ctc(1);
+p1=pc(1);
+
+s2=sc(2);
+ct2=ctc(2);
+p2=pc(2);
 
 SA=[s1 s2];
 
@@ -24,19 +29,15 @@ SA_out = gsw_stabilise_SA_neutral(SA,CT,p);
 s1=SA_out(1);
 s2=SA_out(2);
 
-s3=36.4274;
-ct3=13.709;
-p3=0.5*(p1+p2);
+s3=33.4552;
+ct3=-1.7425;
+p3=29.1309;
 
 
-s12=linspace(s1,s2,4);
-ct12=linspace(ct1,ct2,4);
-ct12(2)=ct12(2)-0.004; % sloppy, should adjust s value too
-ct12(3)=ct12(3)-0.000; 
-p=polyfit(s12,ct12,3);
+
+
 s12=linspace(s1,s2,100);
-ct12=polyval(p,s12);
-
+ct12=linspace(ct1,ct2,100);
 p12=linspace(p1,p2,100);
 
 p13=0.5*(p1+p3);
@@ -47,7 +48,6 @@ ct3_=ct3*ones(size(p12));
 pref=0.5*(p12+p3);
 F=gsw_rho(s12,ct12,pref)-gsw_rho(s3_,ct3_,pref);
 
-
 sz=1.3*[10 10];
 figure('PaperSize',sz,'PaperPosition',[0 0 sz(1) sz(2)])
 plot(F,-p12)
@@ -56,12 +56,12 @@ plot([0 0],get(gca,'ylim'))
 hold off
 ylabel('z [m]')
 xlabel('F')
-print('-dpdf','-r200','stab5_F.pdf')
+print('-dpdf','-r200','stab10_F.pdf')
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
-s_=linspace(33,38,50);
-ct_=linspace(2,17,50);
+s_=linspace(33.45,33.48,50);
+ct_=linspace(-2.1,-1.6,50);
 [s_,ct_]=meshgrid(s_,ct_);
 
 rho1=gsw_rho(s_,ct_,p1);
@@ -84,12 +84,12 @@ plot(s2,ct2,'b*')
 plot(s3,ct3,'k*')
 plot(s12,ct12)
 hold off
-xlim([36.41 36.52])
-ylim([13.6 14.1])
+%xlim([36.35 36.6])
+%ylim([13.6 14.1])
 ylabel('CT [deg C]')
 xlabel('SA')
-legend('ref local ','ref local',['ref mid-point ',num2str(pref(1))],['ref mid-point ',num2str(pref(end))],['cast (upper) ',num2str(p1)],['cast (lower) ',num2str(p2)],['bottle ',num2str(p3)],'cast','location','northwest')
-print('-dpdf','-r200','stab5.pdf')
+legend('ref local ','ref local',['ref mid-point ',num2str(pref(1))],['ref mid-point ',num2str(pref(end))],['cast (upper) ',num2str(p1)],['cast (lower) ',num2str(p2)],['bottle ',num2str(p3)],'cast lin. interp.','location','southwest')
+print('-dpdf','-r200','stab10.pdf')
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 disp('Method             SA       CT       P')
@@ -103,5 +103,3 @@ disp(['Jackett   (fzero): ',num2str(SAns), '  ', num2str(CTns), '  ', num2str(pn
 disp(['Guillaume (fzero): ',num2str(SAns), '  ', num2str(CTns), '  ', num2str(pns)])
 [SAns,CTns,pns] = depth_ntp_iter(s3,ct3,p3,s12',ct12',p12');
 disp(['depth_ntp_iter:    ',num2str(SAns), '  ', num2str(CTns), '  ', num2str(pns)])
-
-

@@ -24,19 +24,13 @@ SA_out = gsw_stabilise_SA_neutral(SA,CT,p);
 s1=SA_out(1);
 s2=SA_out(2);
 
-s3=36.4274;
-ct3=13.709;
+s3=36.4141;
+ct3=13.667;
 p3=0.5*(p1+p2);
 
 
-s12=linspace(s1,s2,4);
-ct12=linspace(ct1,ct2,4);
-ct12(2)=ct12(2)-0.004; % sloppy, should adjust s value too
-ct12(3)=ct12(3)-0.000; 
-p=polyfit(s12,ct12,3);
 s12=linspace(s1,s2,100);
-ct12=polyval(p,s12);
-
+ct12=linspace(ct1,ct2,100);
 p12=linspace(p1,p2,100);
 
 p13=0.5*(p1+p3);
@@ -47,7 +41,6 @@ ct3_=ct3*ones(size(p12));
 pref=0.5*(p12+p3);
 F=gsw_rho(s12,ct12,pref)-gsw_rho(s3_,ct3_,pref);
 
-
 sz=1.3*[10 10];
 figure('PaperSize',sz,'PaperPosition',[0 0 sz(1) sz(2)])
 plot(F,-p12)
@@ -56,7 +49,7 @@ plot([0 0],get(gca,'ylim'))
 hold off
 ylabel('z [m]')
 xlabel('F')
-print('-dpdf','-r200','stab5_F.pdf')
+print('-dpdf','-r200','stab7_F.pdf')
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
@@ -84,12 +77,12 @@ plot(s2,ct2,'b*')
 plot(s3,ct3,'k*')
 plot(s12,ct12)
 hold off
-xlim([36.41 36.52])
+xlim([36.35 36.6])
 ylim([13.6 14.1])
 ylabel('CT [deg C]')
 xlabel('SA')
-legend('ref local ','ref local',['ref mid-point ',num2str(pref(1))],['ref mid-point ',num2str(pref(end))],['cast (upper) ',num2str(p1)],['cast (lower) ',num2str(p2)],['bottle ',num2str(p3)],'cast','location','northwest')
-print('-dpdf','-r200','stab5.pdf')
+legend('ref local ','ref local',['ref mid-point ',num2str(pref(1))],['ref mid-point ',num2str(pref(end))],['cast (upper) ',num2str(p1)],['cast (lower) ',num2str(p2)],['bottle ',num2str(p3)],'cast lin. interp.','location','northwest')
+print('-dpdf','-r200','stab7.pdf')
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 disp('Method             SA       CT       P')
@@ -103,5 +96,3 @@ disp(['Jackett   (fzero): ',num2str(SAns), '  ', num2str(CTns), '  ', num2str(pn
 disp(['Guillaume (fzero): ',num2str(SAns), '  ', num2str(CTns), '  ', num2str(pns)])
 [SAns,CTns,pns] = depth_ntp_iter(s3,ct3,p3,s12',ct12',p12');
 disp(['depth_ntp_iter:    ',num2str(SAns), '  ', num2str(CTns), '  ', num2str(pns)])
-
-

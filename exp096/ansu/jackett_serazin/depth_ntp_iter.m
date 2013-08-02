@@ -1,6 +1,6 @@
 function [sns,tns,pns] = depth_ntp_iter(s0,t0,p0,s,t,p)
 
-% warning('no check of input dimensions')
+%warning('no check of input dimensions')
 
 s=s(:,:);
 t=t(:,:);
@@ -52,7 +52,10 @@ while 1
           
     [min_F, lminr]=min(abs(F_neg)); 
     final=min_F<=delta; % These are points with sufficiently small and negative F. Note that this includes points which are not adjacent to a zero crossing.
-                
+                                   % TODO: a double-zero-crossing could
+                                   % arise due to linear interpolation for
+                                   % values that are close to 0 and of
+                                   % equal sign in F.
     zc_F_stable= F_n & circshift(F_p,-1); % stable zero crossing (F<0 on point above, F>0 on point below); possible candidates for iterative zooming
     zc_F_stable(end,:)=false; % zooming not possible at bottom
     k_zc=nan(1,size(zc_F_stable,2)); % initialize vertical index of zero crossing

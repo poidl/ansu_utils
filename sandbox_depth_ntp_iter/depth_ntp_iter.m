@@ -1,6 +1,6 @@
 function [sns,tns,pns] = depth_ntp_iter(s0,t0,p0,s,t,p)
 
-% warning('no check of input dimensions')
+warning('no check of input dimensions')
 
 s=s(:,:);
 t=t(:,:);
@@ -42,9 +42,8 @@ while 1
     bottle=gsw_rho(s0_stacked,t0_stacked,pmid);
 
     cast=gsw_rho(s(:,:),t(:,:),pmid); % 3-d density referenced to pmid
-    F=cast-bottle; 
+    F=cast-bottle; % rho-(rho_s+rho'); find corrected surface by finding roots of this term
    
-    F_p = F>0;
     F_n = F<0;
     
     F_neg=F;
@@ -52,17 +51,21 @@ while 1
           
     [min_F, lminr]=min(abs(F_neg)); 
     final=min_F<=delta; % These are points with sufficiently small and negative F. Note that this includes points which are not adjacent to a zero crossing.
-                
-    zc_F_stable= F_n & circshift(F_p,-1); % stable zero crossing (F<0 on point above, F>0 on point below); possible candidates for iterative zooming
+            
+    zc_F_stable= F_n & circshift(~F_n,-1); % stable zero crossing (F<0 on point above, F>0 on point below); possible candidates for iterative zooming
     zc_F_stable(end,:)=false; % zooming not possible at bottom
     k_zc=nan(1,size(zc_F_stable,2)); % initialize vertical index of zero crossing
-    any_zc_F_stable=any(zc_F_stable,1);
-    for ii=find(any_zc_F_stable); % check if there are multiple stable zero crossings 
-        k_zc(ii)=find(zc_F_stable(:,ii),1,'first'); % remember the vertical index of shallowest zero crossing
+    for ii=1:size(zc_F_stable,2); % check if there are multiple stable zero crossings in one vertical cast and remove all except for the shallowest one
+        if sum(zc_F_stable(:,ii)>1);
+            k_zc(ii)=find(zc_F_stable(:,ii),1,'first'); % remember the vertical index of zero crossing
+            zc_F_stable(k_zc(ii)+1:end)=false;
+        end
     end
+    
+    zc_F_stable=any(zc_F_stable,1);
         
     cond1=min_F>delta;
-    fr= any_zc_F_stable & cond1; %  at these horizontal locations we have to increase the vertical resolution before finding the root
+    fr= zc_F_stable & cond1; %  at these horizontal locations we have to increase the vertical resolution before finding the root
     
     lminr=lminr+stack*[0:size(F_n,2)-1];
     lminr=lminr(final); 
