@@ -341,19 +341,36 @@ while 1
     t2_stacked=t2_stacked(:,fr);
     
     t1=gsw_rho(s(:,:),ct(:,:),pns_stacked); % 3-d density referenced to pressure of the current surface
-    tni=t1-t2_stacked; % rho-(rho_s+rho'); find corrected surface by finding roots of this term
+    F=t1-t2_stacked; % rho-(rho_s+rho'); find corrected surface by finding roots of this term
     
-    Itni_p = tni>0;
-    Itni_n = tni<0;
+    F_p = F>0;
+    F_n = F<0;
     
-    zc = any(Itni_p,1) & any(Itni_n,1); % horizontal indices of locations where zero-crossing occurs
-    [min_tni, lminr]=min(abs(tni));
-    cond1=min_tni>delta;
-    final=min_tni<=delta; % at these horizontal indices root has been found
-    fr= zc & cond1; %  at these horizontal locations we have to increase the vertical resolution before finding the root
+    % TODO: a double-zero-crossing could arise due to linear interpolation for
+    % values that are close to 0 and of equal sign in F?
     
-    lminr=lminr+stack*[0:size(Itni_n,2)-1];
-    lminr=lminr(final);
+    zc_F_stable= F_n & circshift(F_p,-1); % stable zero crossing (F<0 at point and F>0 on point below);
+    zc_F_stable(end,:)=false; % discard bottom (TODO: should check if bottom point is negative, sufficiently close to zero and has a negative point above it)
+    
+    k_zc=nan(1,size(zc_F_stable,2)); % initialize vertical index of zero crossing
+    any_zc_F_stable=any(zc_F_stable,1);
+    for ii=find(any_zc_F_stable); % check if there are multiple stable zero crossings
+        zc1=find(zc_F_stable(:,ii),1,'first'); % get the vertical index of shallowest zero crossing
+        zc_F_stable(zc1+1:end,ii)=false; % remove additional crossings
+        k_zc(ii)=zc1; % remember the vertical index of shallowest zero crossing
+    end
+    
+    F_neg=F;
+    F_neg(~zc_F_stable)=nan; %  Matrix of negative F values which lie above zero crossings.
+          
+    [min_F, lminr]=min(abs(F_neg)); 
+    final=(min_F<=delta); % These are points with sufficiently small F.
+    
+    cond1=min_F>delta;
+    fr= any_zc_F_stable & cond1; %  at these horizontal locations we have to increase the vertical resolution before finding the root
+    
+    lminr=lminr+stack*[0:size(F_n,2)-1];
+    lminr=lminr(final); 
     
     sns_out(inds(final))=s(lminr); % adjust surface where root has already been found
     ctns_out(inds(final)) =ct(lminr);
@@ -364,21 +381,22 @@ while 1
         break
     end
     
-    k=sum(Itni_n,1); % find indices of flattened 3d-array where vertical resolution must be increased
-    k=k+stack*[0:size(Itni_n,2)-1];
+    k=k_zc; % find indices of flattened 3d-array where vertical resolution must be increased
+    k=k+stack*[0:size(F_n,2)-1];
     k=k(fr);
     
     ds_ =  ( s(k+1) - s(k))/refine_ints; % increase resolution in the vertical
-    dct_ = (ct(k+1) - ct(k))/refine_ints;
+    dt_ = (ct(k+1) - ct(k))/refine_ints;
     dp_ =  (p(k+1) - p(k))/refine_ints;
     
     ds_ =bsxfun(@times, ds_, [0:refine_ints]');
-    dct_ = bsxfun(@times, dct_, [0:refine_ints]');
+    dt_ = bsxfun(@times, dt_, [0:refine_ints]');
     dp_ = bsxfun(@times, dp_, [0:refine_ints]');
     
     s =  bsxfun(@plus,s(k),ds_);
-    ct =  bsxfun(@plus,ct(k),dct_);
+    ct =  bsxfun(@plus,ct(k),dt_);
     p =  bsxfun(@plus,p(k),dp_);
+
     
 end
 

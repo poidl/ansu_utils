@@ -1,6 +1,6 @@
 function [sns,tns,pns] = depth_ntp_iter(s0,t0,p0,s,t,p)
 
-% warning('no check of input dimensions')
+%warning('no check of input dimensions')
 
 s=s(:,:);
 t=t(:,:);
@@ -47,20 +47,26 @@ while 1
     F_p = F>0;
     F_n = F<0;
     
-    F_neg=F;
-    F_neg(~F_n)=nan;
-          
-    [min_F, lminr]=min(abs(F_neg)); 
-    final=min_F<=delta; % These are points with sufficiently small and negative F. Note that this includes points which are not adjacent to a zero crossing.
-                
-    zc_F_stable= F_n & circshift(F_p,-1); % stable zero crossing (F<0 on point above, F>0 on point below); possible candidates for iterative zooming
-    zc_F_stable(end,:)=false; % zooming not possible at bottom
+    % TODO: a double-zero-crossing could arise due to linear interpolation for
+    % values that are close to 0 and of equal sign in F?
+    
+    zc_F_stable= F_n & circshift(F_p,-1); % stable zero crossing (F<0 at point and F>0 on point below);
+    zc_F_stable(end,:)=false; % discard bottom (TODO: should check if bottom point is negative, sufficiently close to zero and has a negative point above it)
+    
     k_zc=nan(1,size(zc_F_stable,2)); % initialize vertical index of zero crossing
     any_zc_F_stable=any(zc_F_stable,1);
-    for ii=find(any_zc_F_stable); % check if there are multiple stable zero crossings 
-        k_zc(ii)=find(zc_F_stable(:,ii),1,'first'); % remember the vertical index of shallowest zero crossing
+    for ii=find(any_zc_F_stable); % check if there are multiple stable zero crossings
+        zc1=find(zc_F_stable(:,ii),1,'first'); % get the vertical index of shallowest zero crossing
+        zc_F_stable(zc1+1:end,ii)=false; % remove additional crossings
+        k_zc(ii)=zc1; % remember the vertical index of shallowest zero crossing
     end
-        
+    
+    F_neg=F;
+    F_neg(~zc_F_stable)=nan; %  Matrix of negative F values which lie above zero crossings.
+          
+    [min_F, lminr]=min(abs(F_neg)); 
+    final=(min_F<=delta); % These are points with sufficiently small F.
+    
     cond1=min_F>delta;
     fr= any_zc_F_stable & cond1; %  at these horizontal locations we have to increase the vertical resolution before finding the root
     

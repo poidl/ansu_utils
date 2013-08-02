@@ -92,7 +92,7 @@ disp(['Jackett:           ',num2str(SAns), '  ', num2str(CTns), '  ', num2str(pn
 disp(['Guillaume:         ',num2str(SAns), '  ', num2str(CTns), '  ', num2str(pns)])
 [SAns,CTns,pns] = depth_ntp_jackett_fzero(s3,ct3,p3,s12',ct12',p12');
 disp(['Jackett   (fzero): ',num2str(SAns), '  ', num2str(CTns), '  ', num2str(pns)])
-[SAns,CTns,pns] = depth_ntp_guillaume_fzero(s3,ct3,p3,s12',ct12',p12');
-disp(['Guillaume (fzero): ',num2str(SAns), '  ', num2str(CTns), '  ', num2str(pns)])
+%[SAns,CTns,pns] = depth_ntp_guillaume_fzero(s3,ct3,p3,s12',ct12',p12');
+%disp(['Guillaume (fzero): ',num2str(SAns), '  ', num2str(CTns), '  ', num2str(pns)])
 [SAns,CTns,pns] = depth_ntp_iter(s3,ct3,p3,s12',ct12',p12');
 disp(['depth_ntp_iter:    ',num2str(SAns), '  ', num2str(CTns), '  ', num2str(pns)])
