@@ -77,8 +77,7 @@ tic
 %dbstop in optimize_surface_exact at 177
 %dbstop in optimize_surface_exact at 92
 %dbstop in  optimize_surface_exact at 152 if ii==1418
-%dbstop in optimize_surface_exact at 135
-dbstop in optimize_surface_exact at 91
+%dbstop in optimize_surface_exact at 91
 [sns_i(Iak,:,:),ctns_i(Iak,:,:),pns_i(Iak,:,:)] = optimize_surface_exact(sa,ct,p,g,n2,sns(Iak,:,:),ctns(Iak,:,:),pns(Iak,:,:),e1t,e2t);
 display(['optimizing density surface took ',num2str(toc),' seconds']);
 
