@@ -3,14 +3,14 @@ clear all;
 close all;
 
 fname='data/iteration_history.mat';
-varname= 'pns_hist';
+varname= 'phiprime_e_hist';
 load(fname, varname);
 load('data/input_data.mat', 'lats','longs');
 
 lat=squeeze(lats(1,:,1));
 lon=squeeze(longs(1,1,:));
 
-vv=pns_hist; % variable to plot
+vv=phiprime_e_hist; % variable to plot
 nit=size(vv,1);
 
 nfig=1; % number of figures (pages)
@@ -36,7 +36,7 @@ cmax2=max(abs(vv(:)));
 
 
 
-colorscale={'lin'};
+colorscale={'lin','log'};
 
 for icolorscale=1:1
     iit=1; % index of iteration
@@ -50,8 +50,8 @@ for icolorscale=1:1
         isp=1; % index of subplot
         ip=1; % index of plot
         
-        %cmp=colormap(hot(128));
-        %cmp2=cmp(find(cmp(:,1)==1,1,'first')-15:end,:);
+        cmp=colormap(hot(128));
+        cmp2=cmp(find(cmp(:,1)==1,1,'first')-15:end,:);
         
         while (isp<=nsp) && ( ip <=nit) && (iit<=size(vv,1))
             ip=((ifig-1)*nsp+isp);
@@ -90,21 +90,21 @@ for icolorscale=1:1
             elseif colorscale{icolorscale}=='lin'
                 tag='lin';
 
-                %fac(isp)=max(abs(vp(:))); vp=vp/fac(isp); 
+                fac(isp)=max(abs(vp(:))); vp=vp/fac(isp); 
                 %vp=vp/cmax2;
 
                 h=imagesc(lon,lat,vp);
-                %colormap([fliplr(cmp2);flipud(cmp2)]) ;
-                %caxis([-1 1])
+                colormap([fliplr(cmp2);flipud(cmp2)]) ;
+                caxis([-1 1])
                 cbh(isp)=colorbar('Location','SouthOutside','position',[left,bottom-0.4*wsrow,spwidth,0.1*wsrow]);
-                 if isp==6 % 
-                     for ii=1:nsp
-%                         set(cbh(ii),'XTick',-1:0.25:1)
-%                         set(cbh(ii),'XTickLabel',num2str(fac(ii)*str2num(get(cbh(ii),'XTickLabel')),'%2.1e'));
-%                         %set(cbh(ii),'XTickLabel',num2str(cmax2*str2num(get(cbh(ii),'XTickLabel')),'%2.1e'));
-                         xlabel(cbh(ii), 'p_{ns} [db]', 'fontsize',18)
-                     end
-                 end
+                if isp==6 % 
+                    for ii=1:nsp
+                        set(cbh(ii),'XTick',-1:0.25:1)
+                        set(cbh(ii),'XTickLabel',num2str(fac(ii)*str2num(get(cbh(ii),'XTickLabel')),'%2.1e'));
+                        %set(cbh(ii),'XTickLabel',num2str(cmax2*str2num(get(cbh(ii),'XTickLabel')),'%2.1e'));
+                        xlabel(cbh(ii),'$\Phi''$','interpreter','latex','fontsize',18)
+                    end
+                end
                 hold on
 
             end
@@ -114,12 +114,11 @@ for icolorscale=1:1
             load ('coast_data.mat');
             plot(coast_data_long,coast_data_lat,'k-','LineWidth',1);
             title(['Iteration ',num2str(ip-1)])
-   
 
 
             iit=iit+1; isp=isp+1;
         end
-        print('-dpdf','-r200',['figures/pressure_ns_',tag,'_',num2str(ifig,'%02i')])
-        %print('-dpng','-r200',['figures/pressure_ns_',tag,'_',num2str(ifig,'%02i')])
+
+        print('-dpng','-r200',['figures/phi_prime_',tag,'_',num2str(ifig,'%02i')])
     end
 end

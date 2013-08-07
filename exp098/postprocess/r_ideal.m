@@ -1,16 +1,32 @@
-% plotting script
-clear all;
-close all;
+clear all
+close all
 
 fname='data/iteration_history.mat';
-varname= 'pns_hist';
+varname= 'phiprime_e_hist';
 load(fname, varname);
-load('data/input_data.mat', 'lats','longs');
+load('data/input_data.mat', 'lats','longs'); 
 
+pp=phiprime_e_hist;
+r=1;
+
+sum=0;
+
+pp=-pp;
+cp=cumprod(1+r*pp, 1);
+
+pp1=repmat(pp(1,:,:),[size(pp,1),1,1]);
+r_idea=(cp-1)./ pp1;
+cut=1;
+cutoff=r_idea<1-cut | r_idea>1+cut;
+r_idea(cutoff)=nan;
+
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 lat=squeeze(lats(1,:,1));
 lon=squeeze(longs(1,1,:));
 
-vv=pns_hist; % variable to plot
+vv=r_idea; % variable to plot
+%vv=diff(vv,1);
 nit=size(vv,1);
 
 nfig=1; % number of figures (pages)
@@ -28,7 +44,7 @@ topmarg=(1-(nrows*spheight+(nrows-1)*wsrow))*0.5; % top and bottom margin
 
 cmax=log10(max(abs(vv(:))));
 %cmax=-5
-cmin=-13;
+%cmin=-13;
 cbh=nan*ones(nsp); % colorbar handles
 fac=nan*ones(nsp);
 cmax2=max(abs(vv(:)));
@@ -36,22 +52,23 @@ cmax2=max(abs(vv(:)));
 
 
 
-colorscale={'lin'};
-
-for icolorscale=1:1
+colorscale={'lin','log'};
+txt={'a)','b)','c)','d)','e)','f)'};
+for icolorscale=2:2
     iit=1; % index of iteration
     
     for ifig=1:nfig
         sz=2.0*[21 29.7];
         figure('PaperSize',sz,'PaperPosition',[0 0 sz(1) sz(2)],'Visible','off') 
+        %figure()
         set(gcf,'DefaultAxesFontSize', 15)
         set(gcf,'DefaultTextFontSize',15)
 
         isp=1; % index of subplot
         ip=1; % index of plot
         
-        %cmp=colormap(hot(128));
-        %cmp2=cmp(find(cmp(:,1)==1,1,'first')-15:end,:);
+        cmp=colormap(hot(128));
+        cmp2=cmp(find(cmp(:,1)==1,1,'first')-15:end,:);
         
         while (isp<=nsp) && ( ip <=nit) && (iit<=size(vv,1))
             ip=((ifig-1)*nsp+isp);
@@ -64,6 +81,9 @@ for icolorscale=1:1
             vp=squeeze(vv(iit,:,:));
 
             if colorscale{icolorscale}=='log'
+                vp=vp-1.;
+                cmax=max(log10(abs(vp(:))));
+                cmin=-1.5;
                 tag='log';
                 tmp=vp;
                 tmp(vp<=0)=nan;
@@ -72,18 +92,23 @@ for icolorscale=1:1
                 set(h,'alphadata',~isnan(pos)) % white nans
                 set(gca,'YDir','normal')
                 colormap(flipud(colormap(cmp2))) ;
-                caxis([cmin cmax])
+                if iit>1;
+                    caxis([cmin cmax])
+                end
                 cb=colorbar('location','southoutside','position',[left,bottom-0.35*wsrow,spwidth,0.1*wsrow],'XTickLabel',[]);
                 title(['Iteration ',num2str(ip)])
-                cbfreeze(cb)
-                freezeColors
-                hold on
-
-                vp(vp>=0)=nan;
-                vp=log10(  -vp );
-                h=imagesc(lon,lat,vp);
+               cbfreeze(cb)
+               freezeColors
+               hold on
+               
+                tmp=vp 
+                tmp(vp>=0)=nan;
+                tmp=log10(  -tmp );
+                h=imagesc(lon,lat,tmp);
                 colormap(rot90(colormap(cmp2),2)) ;
-                caxis([cmin cmax])
+                if iit>1;
+                    caxis([cmin cmax])
+                end
                 cb=colorbar('location','southoutside','position',[left,bottom-0.5*wsrow,spwidth,0.1*wsrow]);
                 xlabel(cb,'Red: log10($\Phi''>0$)  $\phantom{xxxxxx}$ Blue: log10( -1$\cdot(\Phi''<0$))','interpreter','latex','fontsize',18)
                 
@@ -91,35 +116,55 @@ for icolorscale=1:1
                 tag='lin';
 
                 %fac(isp)=max(abs(vp(:))); vp=vp/fac(isp); 
-                %vp=vp/cmax2;
 
+                tmp=vp;
                 h=imagesc(lon,lat,vp);
-                %colormap([fliplr(cmp2);flipud(cmp2)]) ;
+                colormap([fliplr(cmp2);flipud(cmp2)]) ;
                 %caxis([-1 1])
                 cbh(isp)=colorbar('Location','SouthOutside','position',[left,bottom-0.4*wsrow,spwidth,0.1*wsrow]);
-                 if isp==6 % 
-                     for ii=1:nsp
-%                         set(cbh(ii),'XTick',-1:0.25:1)
-%                         set(cbh(ii),'XTickLabel',num2str(fac(ii)*str2num(get(cbh(ii),'XTickLabel')),'%2.1e'));
-%                         %set(cbh(ii),'XTickLabel',num2str(cmax2*str2num(get(cbh(ii),'XTickLabel')),'%2.1e'));
-                         xlabel(cbh(ii), 'p_{ns} [db]', 'fontsize',18)
-                     end
-                 end
+                if isp==6 % 
+                    for ii=1:nsp
+                        %set(cbh(ii),'XTick',-1:0.25:1)
+                        %set(cbh(ii),'XTickLabel',num2str(fac(ii)*str2num(get(cbh(ii),'XTickLabel')),'%2.1e'));
+                        %set(cbh(ii),'XTickLabel',num2str(cmax2*str2num(get(cbh(ii),'XTickLabel')),'%2.1e'));
+                        %xlabel(cbh(ii),'$\Phi''$','interpreter','latex','fontsize',18)
+                        xlabel(cbh(ii),['p_{ns}(it=',num2str(ip-nsp+ii),')-p_{ns}(it=',num2str(ip-nsp+ii-1),')  [db]'],'fontsize',18)
+                    end
+                end
                 hold on
 
             end
-
-            set(h,'alphadata',~isnan(vp)) % white nans
+            
+            dlon=lon(2)-lon(1);
+            dlat=lat(2)-lat(1);
+            co=squeeze(cutoff(iit,:,:));
+            for jj=1:size(co,1);
+                for ii=1:size(co,2);
+                    px=lon(ii)+0.5*dlon*([-1 1 1 -1 -1]);
+                    py=lat(jj)+0.5*dlat*([-1 -1 1 1 -1]);
+                    if  isnan(vp(jj,ii)) & ~co(jj,ii);
+                        %plot(px,py,'x','MarkerSize',5,'Color','k');
+                        patch(px,py,[0.5 0.5 0.5],'EdgeColor','none');
+                    end
+                    if co(jj,ii);
+                        %plot(lon(ii),lat(jj),'x','MarkerSize',6,'Color','k');
+                        line(px([4 2]),py([4 2]),'Color','k')
+                        line(px([1 3]),py([1 3]),'Color','k')
+                    end
+                end
+            end
+                    
+            set(h,'alphadata',~isnan(tmp)) % white nans
+           
             set(gca,'YDir','normal')
             load ('coast_data.mat');
             plot(coast_data_long,coast_data_lat,'k-','LineWidth',1);
-            title(['Iteration ',num2str(ip-1)])
-   
-
+            title(['Iteration ',num2str(ip)])
+            text(-20,95,txt(isp),'fontsize',18')
 
             iit=iit+1; isp=isp+1;
         end
-        print('-dpdf','-r200',['figures/pressure_ns_',tag,'_',num2str(ifig,'%02i')])
-        %print('-dpng','-r200',['figures/pressure_ns_',tag,'_',num2str(ifig,'%02i')])
+
+        print('-dpng','-r200',['figures/r_ideal_',tag,'_',num2str(ifig,'%02i')])
     end
 end
