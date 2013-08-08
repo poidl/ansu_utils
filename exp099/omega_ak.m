@@ -21,8 +21,6 @@ sa=s; clear s; % the _subs_ data saves sa in variable 's'
 
 [zi,yi,xi] = size(sa);
 
-lats=repmat(permute(lats,[3,1,2]),[zi,1,1]);
-
 rho = gsw_rho(sa,ct,p_r*ones(size(sa)))-1e3;
 
 sns = nan(length(nlevels),yi,xi);
@@ -74,10 +72,8 @@ tic
 %dbstop in optimize_surface_exact at 177
 %dbstop in optimize_surface_exact at 92
 %dbstop in  optimize_surface_exact at 152 if ii==1418
-%dbstop in optimize_surface_exact at 91
-%dbstop in optimize_surface_exact at 47
-dbstop in optimize_surface_exact at 79
-[sns_i(Iak,:,:),ctns_i(Iak,:,:),pns_i(Iak,:,:)] = optimize_surface_exact(sa,ct,p,sns(Iak,:,:),ctns(Iak,:,:),pns(Iak,:,:),e1t,e2t);
+%dbstop in optimize_surface_exact at 79
+[sns_i(Iak,:,:),ctns_i(Iak,:,:),pns_i(Iak,:,:)] = optimize_surface_exact(sa,ct,p,squeeze(sns(Iak,:,:)),squeeze(ctns(Iak,:,:)),squeeze(pns(Iak,:,:)),e1t,e2t);
 display(['optimizing density surface took ',num2str(toc),' seconds']);
 
         

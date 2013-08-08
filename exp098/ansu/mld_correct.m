@@ -52,7 +52,14 @@ min_dens=dens(1,:);
 mld_dpth=nan*ones(1,yi*xi);
 thresh=bsxfun(@times,min_dens+0.3,ones(zi,1));
 pos=(thresh-dens)>0;
-ip=sum(pos,1);
+
+cs=cumsum(flipud(pos),1)+1; 
+cs(cs~=1)=0;
+ip=zi-sum(cs,1);
+% replacing the above three lines by
+% ip=sum(pos,1);
+% will give the wrong answer for gk_ak_gamma.mat
+% I think this is because 'pos' can be false on top and turn true deeper. better to start counting falses from bottom.
 
 ii1=ip+zi*[0:(yi*xi)-1];
 mld_dpth(ip>0)=p(ii1(ip>0));
