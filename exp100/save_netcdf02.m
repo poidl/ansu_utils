@@ -6,8 +6,7 @@ delete(fname)
 
 for ii=1:1;
     nccreate(fname,vname,...
-              'Dimensions',{'x' nx 'y' ny},...
-              'Format','classic');
+              'Dimensions',{'x' nx 'y' ny});
 end
  
 for ii=1:1;

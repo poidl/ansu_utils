@@ -296,7 +296,7 @@ for it = 1:nit
     end
     
     r=1.0;
-    delta = 1e-6;
+    delta = 1e-12;
 
     t2=gsw_rho(sns_l(:),ctns_l(:),pns_l(:));
     t2=t2.*(1+r*dummy_depth_change_e(:)); % rho_s+rho'

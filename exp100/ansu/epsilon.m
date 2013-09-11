@@ -72,3 +72,10 @@ end
 ex = ((beta_x .* gradx_s) - (alpha_x .* gradx_ct));
 ey = ((beta_y .* grady_s) - (alpha_y .* grady_ct));
 
+
+save_netcdf02(alpha_x,'alpha_x','./data/alpha_x.nc');
+save_netcdf02(beta_x,'beta_x','./data/beta_x.nc');
+save_netcdf02(gradx_ct,'gradx_ct','./data/gradx_ct.nc');
+save_netcdf02(gradx_s,'gradx_s','./data/gradx_s.nc');
+save_netcdf02(ex,'ex','./data/ex.nc');
+save_netcdf02(ey,'ey','./data/ey.nc');

@@ -53,11 +53,10 @@ save_netcdf02(cut_off_choice,'cut_off_choice','./data/cutoff.nc');
 it=0; % start with it=0 and increment it after the initial surface is written to output
 while it<=nit;
     
-    dbstop in epsilon at 52
+    %dbstop in epsilon at 52
     % calculate slope errors/density gradient errors
     [ex,ey] = epsilon(p,sns,ctns,pns,e1t,e2t); 
-    
-    save_netcdf02(ex,'ex','./data/ex.nc');
+   
     
     % diagnose
     if save_iterations;
@@ -356,6 +355,10 @@ wet=~isnan(vv);
 
 L=zeros(size(wet)); % label matrix
 
+remove_south=[1:yi:xi*yi]-1; % southern neighbours of southern boundary points
+remove_north=[yi:yi:xi*yi]+1; % northern neighbours of northern boundary points
+remove=[remove_south, remove_north];
+
 iregion=1; % region label
 
 while 1
@@ -367,6 +370,7 @@ while 1
     while ~isempty(idx); % find neighbours
         offsets = [-1; yi; 1; -yi]; % neighbor offsets for a four-connected neighborhood
         neighbors = bsxfun(@plus, idx, offsets'); % find all the nonzero 4-connected neighbors
+        neighbours=setdiff(neighbours(:),remove);
         if zonally_periodic;  
             neighbors(neighbors<1)=neighbors(neighbors<1)+xi*yi; 
             neighbors(neighbors>xi*yi)=neighbors(neighbors>xi*yi)-xi*yi;
@@ -377,7 +381,8 @@ while 1
         idx = neighbors(wet(neighbors)); % keep only the neighbors that are nonzero
         if isempty(idx); break; end
         L(idx) = iregion;
-        wet(idx)=0; % set the pixels that were just labeled to 0
+        wet(idx)=0; % 
+        
     end
     iregion=iregion+1;
 end

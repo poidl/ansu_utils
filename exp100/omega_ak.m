@@ -72,7 +72,7 @@ tic
 %dbstop in optimize_surface_exact at 177
 %dbstop in optimize_surface_exact at 92
 %dbstop in  optimize_surface_exact at 152 if ii==1418
-%dbstop in optimize_surface_exact at 79
+dbstop in optimize_surface_exact at 62
 
 
 save_netcdf(sa,ct,p,squeeze(sns(Iak,:,:)),squeeze(ctns(Iak,:,:)),squeeze(pns(Iak,:,:)),e1t,e2t);

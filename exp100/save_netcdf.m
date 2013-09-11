@@ -10,8 +10,7 @@ delete data/os_input.nc
 
 for ii=1:3;
     nccreate(fname,vname{ii},...
-              'Dimensions',{'x' nx 'y' ny 'z' nz},...
-              'Format','classic');
+              'Dimensions',{'x' nx 'y' ny 'z' nz});
 end
 
 value={sa,ct,p};
@@ -27,8 +26,7 @@ vname={'sns','ctns','pns','e1t','e2t'};
 
 for ii=1:5;
     nccreate(fname,vname{ii},...
-              'Dimensions',{'x' nx 'y' ny},...
-              'Format','classic');
+              'Dimensions',{'x' nx 'y' ny});
 end
 
 value={sns,ctns,pns,e1t,e2t};
@@ -37,6 +35,5 @@ for ii=1:5;
     ncwrite(fname,vname{ii}, permute(value{ii},[2 1]));
 end
 
-
-
+end
 
