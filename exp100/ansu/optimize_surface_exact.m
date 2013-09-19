@@ -370,6 +370,9 @@ while 1
     while ~isempty(idx); % find neighbours
         offsets = [-1; yi; 1; -yi]; % neighbor offsets for a four-connected neighborhood
         neighbors = bsxfun(@plus, idx, offsets'); % find all the nonzero 4-connected neighbors
+        setfalse=true(size(neighbors));
+        setfalse(1,intersect(neighbors(1,:),remove_south)=
+        neighbors(1,:)
         neighbours=setdiff(neighbours(:),remove);
         if zonally_periodic;  
             neighbors(neighbors<1)=neighbors(neighbors<1)+xi*yi; 

@@ -1,0 +1,7 @@
+P='/home/z3439823/mymatlab/omega/ansu_utils/'
+for i in {58..71}
+do
+	cp $P/exp157/run.m $P/exp1$i/ ;
+	rm $P/exp1$i/figures/*
+	rm $P/exp1$i/data/iteration_history.mat
+done

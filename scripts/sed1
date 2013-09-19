@@ -1,0 +1,4 @@
+for i in {58..71}
+do
+	sed -i 's/dz_from_phiprime(sns_tmp, ctns_tmp, pns_tmp, s, ct, p, drho\*1e-3 )/dz_from_phiprime(sns, ctns, pns, s, ct, p, phiprime+drho\*1e-3 )/g' ../exp1$i/ansu/optimize_surface_exact.m
+done
