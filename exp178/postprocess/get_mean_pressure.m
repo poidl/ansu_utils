@@ -5,9 +5,11 @@ fname='data/iteration_history.mat';
 varname= 'pns_hist';
 load(fname, varname);
 
-vv=pns_hist(1,:,:); % variable to plot
+vv=pns_hist; % variable to plot
+v1=vv(1,:,:);
+v2=vv(end,:,:);
+mp_initial=nanmean(v1(:));
+mp_final=nanmean(v2(:));
 
-mpressure=nanmean(vv(:));
-disp(['mean pressure: ', num2str(mpressure)])
-
-
+disp(['mean pressure initial: ', num2str(mp_initial)])
+disp(['mean pressure final: ', num2str(mp_final)])

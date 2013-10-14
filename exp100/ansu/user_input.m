@@ -1,4 +1,4 @@
-zonally_periodic=true;
+zonally_periodic=false;
 solver = 'iterative';
 nit = 6;
 

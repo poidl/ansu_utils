@@ -38,9 +38,9 @@ longs=repmat(permute(lon,[3 1 2]),[nz 1 1]);
 s=36+0*ct;
 
 rho0=gsw_rho(squeeze(s(:,:,1)), squeeze(ct(:,:,1)), 0*squeeze(p(:,:,1)));
-if 0;
+if 1;
     figure
-    contourf(rho0)
+    contourf(lats(1,:,1),-p(:,1,1),rho0)
     colorbar
 end
 

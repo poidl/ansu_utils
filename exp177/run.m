@@ -17,7 +17,7 @@ omega_ak
 % plot
 pressure_ns
 delta_pressure_ns
-%phi_prime
+phi_prime
 error_measure
 error_measure_phi
 get_mean_pressure

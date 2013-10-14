@@ -104,14 +104,7 @@ while it<=nit;
     phiprime=solve_lsqr(regions, ex, ey, e1t, e2t);
     
     % find corrected surface
-    myfac=0;
-    if myfac~=0;
-        [sns_tmp, ctns_tmp, pns_tmp] = dz_from_phiprime(sns, ctns, pns, s, ct, p, phiprime );
-        drho=myfac*(-2e-5*(pns_tmp-pns).*(ctns_tmp-ctns));
-        [sns, ctns, pns] = dz_from_phiprime(sns_tmp, ctns_tmp, pns_tmp, s, ct, p, drho*1e-3 );
-    else
-        [sns, ctns, pns] = dz_from_phiprime(sns, ctns, pns, s, ct, p, phiprime );
-    end
+    [sns, ctns, pns] = dz_from_phiprime(sns, ctns, pns, s, ct, p, phiprime );
     
 end
 
@@ -235,7 +228,7 @@ function [sns_out,ctns_out,pns_out] = dz_from_phiprime(sns, ctns, pns, s, ct, p,
 phiprime_e = permute(phiprime_e, [3 1 2]);
 
 r=1.0;
-delta = 1e-12;
+delta = 1e-9;
 
 rho_surf=gsw_rho(sns(:),ctns(:),pns(:));
 t2=rho_surf.*(1-r*phiprime_e(:)); % approximately t2.*exp(-r*phiprime_e)

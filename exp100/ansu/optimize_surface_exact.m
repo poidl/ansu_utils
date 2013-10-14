@@ -357,7 +357,9 @@ L=zeros(size(wet)); % label matrix
 
 remove_south=[1:yi:xi*yi]-1; % southern neighbours of southern boundary points
 remove_north=[yi:yi:xi*yi]+1; % northern neighbours of northern boundary points
-remove=[remove_south, remove_north];
+%remove=[remove_south, remove_north];
+
+L=zeros(size(wet)); % label matrix
 
 iregion=1; % region label
 
@@ -369,11 +371,10 @@ while 1
     L(idx) = iregion; % label first point
     while ~isempty(idx); % find neighbours
         offsets = [-1; yi; 1; -yi]; % neighbor offsets for a four-connected neighborhood
-        neighbors = bsxfun(@plus, idx, offsets'); % find all the nonzero 4-connected neighbors
-        setfalse=true(size(neighbors));
-        setfalse(1,intersect(neighbors(1,:),remove_south)=
-        neighbors(1,:)
-        neighbours=setdiff(neighbours(:),remove);
+        neighbors_tmp = bsxfun(@plus, idx, offsets'); % find all the nonzero 4-connected neighbors
+        neighbors=setdiff(neighbors_tmp(:,1),remove_south);
+        neighbors=[neighbors, setdiff(neighbors_tmp(:,3),remove_north)];
+        neighbors=[neighbors, neighbors_tmp(:,2)', neighbors_tmp(:,4)'];
         if zonally_periodic;  
             neighbors(neighbors<1)=neighbors(neighbors<1)+xi*yi; 
             neighbors(neighbors>xi*yi)=neighbors(neighbors>xi*yi)-xi*yi;
@@ -384,8 +385,7 @@ while 1
         idx = neighbors(wet(neighbors)); % keep only the neighbors that are nonzero
         if isempty(idx); break; end
         L(idx) = iregion;
-        wet(idx)=0; % 
-        
+        wet(idx)=0; % set the pixels that were just labeled to 0
     end
     iregion=iregion+1;
 end
