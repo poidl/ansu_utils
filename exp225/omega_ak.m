@@ -35,10 +35,10 @@ Iak = 1;
 if initial_surface_at_constant_pressure;
     ip=find(p(:,1,1)>=initial_pressure,1,'first');
     ptarget=p(ip,1,1)
-    sns_Iak=s(ip,:,:);
-    ctns_Iak=ct(ip,:,:);
-    pns_Iak=p(ip,:,:);
-    pns_Iak(isnan(sns_Iak))=nan;
+    sns=squeeze( s(ip,:,:));
+    ctns=squeeze( ct(ip,:,:));
+    pns=squeeze( p(ip,:,:));
+    pns(isnan(sns))=nan;
 else
 %     rho = gsw_rho(s,ct,p_r*ones(size(s)))-1e3;
 %     glevels_Iak=glevels(Iak);
@@ -110,18 +110,20 @@ cnt=0;
         p_2 =  bsxfun(@plus,p_2(k),dp_);
 
     end
+    
+    sns=sns_out;
+    ctns=ctns_out;
+    pns=pns_out;
+  
 end
 
-sns=sns_out;
-ctns=ctns_out;
-pns=pns_out;
 
 
 display('optimizing density surface');
 tic
 
 %dbstop in  optimize_surface_exact at 232 if ii==1220
-%dbstop in optimize_surface_exact at 333
+%dbstop in optimize_surface_exact at 167
 
 %save_netcdf(sa,ct,p,sns,ctns,pns);
 [sns_i(Iak,:,:),ctns_i(Iak,:,:),pns_i(Iak,:,:)] = optimize_surface_exact(s,ct,p,sns,ctns,pns);

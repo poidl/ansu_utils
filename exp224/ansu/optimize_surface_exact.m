@@ -92,8 +92,8 @@ while it<=nit;
     % calculate delta^tilde rho
     [drhodx,drhody]=delta_tilde_rho(sns,ctns,pns);
     
-    save_netcdf02(drhodx,'drhodx','./data/drhodx.nc');
-    save_netcdf02(drhody,'drhody','./data/drhody.nc');
+%    save_netcdf02(drhodx,'drhodx','./data/drhodx.nc');
+%    save_netcdf02(drhody,'drhody','./data/drhody.nc');
     
     
 %     % disregard data above mixed layer depth
@@ -106,12 +106,9 @@ while it<=nit;
     % find independent regions -> a least-squares problem is solved for
     % each of these regions
     regions=find_regions(pns);
-    regions=regions(1);
+    
     % solve for delta rho
     drho=solve_lsqr(regions, drhodx, drhody);
-    if it==1;
-        save_netcdf02(drho,'drho','./data/drho.nc');
-    end    
     
     % find corrected surface
     [sns, ctns, pns] = dz_from_drho(sns, ctns, pns, s, ct, p, drho );
@@ -182,7 +179,7 @@ for iregion=1:length(regions)
     
     en= reg & circshift(reg,-yi); %  find points between which phi_x can be computed. en is true at a point if its eastward neighbor is in the region
     if ~zonally_periodic;  % remove equations for eastern boundary for zonally-nonperiodic domain
-        en((xi-1)*yi+1:xi*yi)=false;
+        en((xi-1)*yi:xi*yi)=false;
     end
     sreg=cumsum(reg); % sparse indices of points forming the region (points of non-region are indexed with dummy)
     sreg_en=circshift(sreg,-yi); % sparse indices of eastward neighbours
@@ -216,12 +213,11 @@ for iregion=1:length(regions)
     disp(['solving for region ',int2str(iregion)]);
     switch solver
         case 'iterative'
-            [x,dummyflag,relres] = lsqr(A,b,1e-7,50000);
+            [x,dummyflag] = lsqr(A,b,1e-7,50000);
         case 'exact'
             x = (A'*A)\(A'*b);
     end
     
-    disp(['norm(b-A*x): ',num2str(relres*norm(b))])
     x = full(x)';
     
     % put density changes calculated by the least-squares solver into
@@ -238,7 +234,7 @@ function [sns_out,ctns_out,pns_out] = dz_from_drho(sns, ctns, pns, s, ct, p, drh
 [zi,yi,xi]=size(s);
 drho = permute(drho, [3 1 2]);
 
-delta = 1e-9;
+delta = 1e-11;
 
 rho_surf=gsw_rho(sns(:),ctns(:),pns(:));
 t2=rho_surf-drho(:);
@@ -312,7 +308,7 @@ refine_ints=100;
 cnt=0;
 while 1
     cnt=cnt+1;
-    
+
     if cnt==1 % in first iteration pns_l is stacked vertically zi times, after that it is stacked refine_ints times
         stack=zi;
     elseif cnt==2
@@ -331,7 +327,7 @@ while 1
 
     F=t1-t2_stacked; % rho-(rho_s+rho'); find corrected surface by finding roots of this term
     
-    %dbstop in root_core at 11
+    
     [final,fr,k_zc]=root_core(F,delta,stack);
     
     k_zc_3d=k_zc+stack*[0:size(F,2)-1]; % indices of flattened 3d-array where root has been found   
@@ -347,6 +343,7 @@ while 1
     
     k=k_zc_3d(fr);  % indices of flattened 3d-array where vertical resolution must be increased
     
+    %keyboard
     ds_ =  ( s(k+1) - s(k))/refine_ints; % increase resolution in the vertical
     dt_ = (ct(k+1) - ct(k))/refine_ints;
     dp_ =  (p(k+1) - p(k))/refine_ints;

@@ -12,7 +12,7 @@ params; % load some parameters
 % %        p(kk:end,jj,ii)=nan;
 %     end
 % end
-load('data/idealized_02.mat')
+load('data/idealized_01.mat')
 
 lats=lats(1,:,1); longs=squeeze(longs(1,1,:))';
 
@@ -33,12 +33,20 @@ pns_i = nan(length(nlevels),yi,xi);
 Iak = 1;
 
 if initial_surface_at_constant_pressure;
+    
     ip=find(p(:,1,1)>=initial_pressure,1,'first');
     ptarget=p(ip,1,1)
-    sns_Iak=s(ip,:,:);
-    ctns_Iak=ct(ip,:,:);
-    pns_Iak=p(ip,:,:);
-    pns_Iak(isnan(sns_Iak))=nan;
+    sns=squeeze( s(ip,:,:));
+    ctns=squeeze( ct(ip,:,:));
+    pns=squeeze( p(ip,:,:));
+    pns(isnan(sns))=nan;
+    if 0;
+        ipert=-20;
+        sns(2,:)=squeeze( s(ip+ipert,2,:));
+        ctns(2,:)=squeeze( ct(ip+ipert,2,:));
+        pns(2,:)=squeeze( p(ip+ipert,1,1));          
+        pns(isnan(sns))=nan;
+    end
 else
 %     rho = gsw_rho(s,ct,p_r*ones(size(s)))-1e3;
 %     glevels_Iak=glevels(Iak);
@@ -110,11 +118,13 @@ cnt=0;
         p_2 =  bsxfun(@plus,p_2(k),dp_);
 
     end
+    
+    sns=sns_out;
+    ctns=ctns_out;
+    pns=pns_out;
+    
 end
 
-sns=sns_out;
-ctns=ctns_out;
-pns=pns_out;
 
 
 display('optimizing density surface');
