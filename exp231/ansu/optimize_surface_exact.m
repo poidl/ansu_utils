@@ -91,8 +91,10 @@ while it<=nit;
     
     % calculate delta^tilde rho
     %dbstop in delta_tilde_rho at 47
-    [drhodx,drhody,alphappy]=delta_tilde_rho(sns,ctns,pns);
-    drhody=drhody.*(1+alphappy*1e3);
+    [drhodx,drhody,drhody_new]=delta_tilde_rho(sns,ctns,pns);
+    drhody
+    drhody_new
+    drhody=drhody_new;
     
 %    save_netcdf02(drhodx,'drhodx','./data/drhodx.nc');
 %    save_netcdf02(drhody,'drhody','./data/drhody.nc');

@@ -1,4 +1,4 @@
-function [drhodx,drhody,alphappy] = delta_tilde_rho(sns,ctns,pns)
+function [drhodx,drhody,drhody_new] = delta_tilde_rho(sns,ctns,pns)
 
 
 %   _________________________________________________________________
@@ -42,19 +42,34 @@ drhody(yi,:) = nan;
 
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-
-% second order finite differenc
-alpha=gsw_alpha(sns,ctns,pns)
-alpha_= circshift(alpha, [-1 0])+alpha;
-
 pmid=0.5*(pns+circshift( pns, [-1,0]));
 smid=0.5*(sns+circshift( sns, [-1,0]));
 ctmid=0.5*(ctns+circshift( ctns, [-1,0]));
 
-alphamid=2.*gsw_alpha(smid,ctmid, pmid);
+aa=gsw_alpha(sns,ctns,pns);
+ab=circshift(aa, [-1 0]);
+am=gsw_alpha(smid,ctmid, pmid);
+ra=gsw_rho(sns,ctns,pns);
+rb=circshift(ra, [-1 0]);
+rm=gsw_rho(smid,ctmid, pmid);
 
-alphappy=alpha_-alphamid;
-alphappy(end,:)=nan;
+fac=2*ra.*rb.*aa.*ab./(rm.*am.*(rb.*ab+ra.*aa));
+
+drhody_new=fac.*drhody;
+
+
+% second order finite differenc
+% alpha=gsw_alpha(sns,ctns,pns)
+% alpha_= circshift(alpha, [-1 0])+alpha;
+% 
+% pmid=0.5*(pns+circshift( pns, [-1,0]));
+% smid=0.5*(sns+circshift( sns, [-1,0]));
+% ctmid=0.5*(ctns+circshift( ctns, [-1,0]));
+% 
+% alphamid=2.*gsw_alpha(smid,ctmid, pmid);
+% 
+% alphappy=alpha_-alphamid;
+% alphappy(end,:)=nan;
 
 
 
