@@ -10,14 +10,25 @@ figure('PaperSize',sz,'PaperPosition',[0 0 sz(1) sz(2)])
 
 drho=drho_hist(:,2,1);
 
-logr=log10(drho);
-logr(logr==-Inf)=nan;
+
+ipos=drho>0;
+ineg=drho<0;
+
+%drho_p=nan*drho;
+%drho_p(ipos)=drho(ipos)
+
+%drho_n=nan*drho;
+%drho_n(ineg)=drho(ineg)
+
+logr=nan*drho;
+logr(ipos)=log10(drho(ipos));
+logr(ineg)=-log10(-drho(ineg));
+%logr(logr==-Inf)=nan;
 
 plot(logr,'*')
 xlabel('Iteration Nr')
-ylabel('$log10( \tilde{\Delta}\rho ) \rm\,[kg/m^3]$','interpreter','latex')
+ylabel('$\pm log10( \pm \tilde{\Delta}\rho ) \rm\,[kg/m^3]$','interpreter','latex')
 xlim([0.8 8.5])
-ylim([-10.5 -2])
 set(gca,'XTick',[1:9])
 grid on
 hold on

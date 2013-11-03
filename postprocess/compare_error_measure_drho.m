@@ -2,13 +2,13 @@
 clear all;
 close all;
 
-fname='../exp238/data/iteration_history.mat';
+fname='../exp243/data/iteration_history.mat';
 varname= 'drho_rms_hist';
 load(fname, varname);
 
 vv1=drho_rms_hist; % variable to plot
 
-fname='../exp241/data/iteration_history.mat';
+fname='../exp244/data/iteration_history.mat';
 varname= 'drho_rms_hist';
 load(fname, varname);
 
@@ -29,6 +29,6 @@ power=[-11:-2];
 set(gca, 'YTick', (10*ones(1,1:length(power))).^power )
 grid on
 xlabel('Iterations')
-ylabel('$\sqrt{\overline{\delta\rho^2}}\quad \rm [kg/m^{-3}]$','interpreter','latex','fontsize',13)
+ylabel('$\sqrt{\overline{\Delta\rho^2}}\quad \rm [kg/m^{-3}]$','interpreter','latex','fontsize',13)
 axis tight
 print('-dpdf','-r200',['figures/compare_drho_rms'])

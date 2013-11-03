@@ -47,8 +47,6 @@ user_input;
 %dbstop in mld at 50
 cut_off_choice = mld(s,ct,p); % mixed-layer depth
 
-save_netcdf02(cut_off_choice,'cut_off_choice','./data/cutoff.nc');
-
 stop_wetting=false;
 
 % iterations of inversion
@@ -58,9 +56,9 @@ while it<=nit;
     % diagnose
     if save_iterations;
         if it==0; % dummy values
-            drho=nan;
+            drho=nan; b=nan; n2ns=nan;
         end
-        diagnose_and_write(it,sns,ctns,pns,drho);
+        diagnose_and_write(it,sns,ctns,pns,drho,b,n2ns);
     end
     
     if it==nit; % break out if done
@@ -75,8 +73,8 @@ while it<=nit;
     % surface if necessary.
 %     if it<nit && ~stop_wetting;
 %         disp('Wetting')
-%         %if (it==1||it==2); % it==2 may not be necessary for good starting surfaces, but it is necessary when starting from an isobar
-%         if (it==1); 
+%         if (it==1||it==2); % it==2 may not be necessary for good starting surfaces, but it is necessary when starting from an isobar
+%         %if (it==1); 
 %             [sns,ctns,pns,neighbours]=wetting(sns,ctns,pns,s,ct,p);
 %         else
 %             n_neighbours_old=sum(neighbours);
@@ -92,10 +90,6 @@ while it<=nit;
     % calculate delta^tilde rho
     [drhodx,drhody]=delta_tilde_rho(sns,ctns,pns);
     
-%    save_netcdf02(drhodx,'drhodx','./data/drhodx.nc');
-%    save_netcdf02(drhody,'drhody','./data/drhody.nc');
-    
-    
 %     % disregard data above mixed layer depth
 %     drhodx(pns<=cut_off_choice)=nan;
 %     drhody(pns<=cut_off_choice)=nan;
@@ -103,12 +97,165 @@ while it<=nit;
 %     ctns(pns<=cut_off_choice)=nan;
 %     pns(pns<=cut_off_choice)=nan;
     
-    % find independent regions -> a least-squares problem is solved for
-    % each of these regions
-    regions=find_regions(pns);
+%    dbstop in n2 at 6
+    [zi,yi,xi]=size(s);
+    n2ns=n2(s,ct,p,pns);
     
+    sns(isnan(n2ns))=nan;
+    ctns(isnan(n2ns))=nan;
+    pns(isnan(n2ns))=nan;
+    
+    
+    
+    n2nsx=0.5*(circshift(n2ns, [0 -1])+n2ns);
+    if ~zonally_periodic;
+        n2nsx(:,xi) = nan;
+    end
+    n2nsy=0.5*(circshift(n2ns, [-1 0])+n2ns);
+    n2nsy(yi,:) = nan;
+    
+    ro=gsw_rho(sns,ctns,pns);
+    rox=0.5*(circshift(ro, [0 -1])+ro);
+    if ~zonally_periodic;
+        rox(:,xi) = nan;
+    end
+    roy=0.5*(circshift(ro, [-1 0])+ro);
+    roy(yi,:) = nan;
+    
+    
+
+    
+%dbstop in kappaxy at 67
+    [kx_ns,ky_ns]=kappaxy(s,ct,p,pns);
+%     
+%     figure()
+%     set(gcf,'DefaultAxesFontSize', 15)
+%         set(gcf,'DefaultTextFontSize',15)
+%      h=imagesc(kx_ns)
+%  set(gca,'YDir','normal')
+%  set(h,'alphadata',~isnan(kx_ns))
+%  colorbar
+%  
+%      figure()
+%     set(gcf,'DefaultAxesFontSize', 15)
+%         set(gcf,'DefaultTextFontSize',15)
+%      h=imagesc(ky_ns)
+%  set(gca,'YDir','normal')
+%  set(h,'alphadata',~isnan(ky_ns))
+%  %colorbar
+ 
+ 
+
+%         c2=gsw_sound_speed(sns,ctns,pns).^2;
+%     kappa=1./(ro.*c2);
+% 
+%     kappax=circshift(kappa, [0 -1])-kappa;
+%     if ~zonally_periodic;
+%         kappax(:,xi) = nan;
+%     end
+%     kappay=circshift(kappa, [-1 0])-kappa;
+%     kappay(yi,:) = nan;
+
+% 
+%         figure()
+%     set(gcf,'DefaultAxesFontSize', 15)
+%         set(gcf,'DefaultTextFontSize',15)
+%      h=imagesc(kappax)
+%  set(gca,'YDir','normal')
+%  set(h,'alphadata',~isnan(kappax))
+%  colorbar
+%  
+%      figure()
+%     set(gcf,'DefaultAxesFontSize', 15)
+%         set(gcf,'DefaultTextFontSize',15)
+%      h=imagesc(kappay)
+%  set(gca,'YDir','normal')
+%  set(h,'alphadata',~isnan(kappay))
+%  colorbar
+ 
+ 
+    fx=9.81^2*rox.*(1./n2nsx).*kx_ns;
+    fy=9.81^2*roy.*(1./n2nsy).*ky_ns;
+
+%           h=imagesc(pns)
+%         set(gca,'YDir','normal')
+%         set(h,'alphadata',~isnan(pns))
+        %colorbar  
+        %title('pns')
+%     
+%         figure()
+%         h=imagesc(fx)
+%         set(gca,'YDir','normal')
+%         set(h,'alphadata',~isnan(fx))
+%         colorbar
+%         
+%         figure()
+%         h=imagesc(fy)
+%         set(gca,'YDir','normal')
+%         set(h,'alphadata',~isnan(fy))
+%         colorbar 
+%         
+%         figure()
+%         h=imagesc(1./n2ns)
+%         set(gca,'YDir','normal')
+%         set(h,'alphadata',~isnan(n2ns))
+%         colorbar
+%         title('N2')
+  
+        iyeq=(~isnan(pns) & ~isnan(circshift(pns,[-1 0])));
+        bad=(iyeq & isnan(ky_ns));
+        
+        pns(bad)=nan;
+        sns(bad)=nan;
+        ctns(bad)=nan;
+        
+      
+        
+
+        % find independent regions -> a least-squares problem is solved for
+        % each of these regions
+        regions=find_regions(pns);
+        
+        lnb=solve_lsqr(regions,fx,fy,1e-11);
+%               figure()
+%         h=imagesc(lnb)
+%         set(gca,'YDir','normal')
+%         set(h,'alphadata',~isnan(lnb))
+%         colorbar
+%         title('lnb')
+%    
+%                 figure()
+%         h=imagesc(drhodx)
+%         set(gca,'YDir','normal')
+%         set(h,'alphadata',~isnan(drhodx))
+%         colorbar
+%         title('drhodx')
+%                     figure()
+%         h=imagesc(drhody)
+%         set(gca,'YDir','normal')
+%         set(h,'alphadata',~isnan(drhody))
+%         colorbar
+%         title('drhody')
+        
+        b=exp(lnb);
+
+%         figure()
+%         h=imagesc(b)
+%         set(gca,'YDir','normal')
+%         set(h,'alphadata',~isnan(b))
+%         colorbar
+%         title('b')
+%         print('-dpdf','-r200',['figures/b.pdf'])
+    
+    bx=0.5*(circshift(b,[0 -1])+b);
+    by=0.5*(circshift(b,[-1 0])+b);
+    
+    drhodx=bx.*drhodx;
+    drhody=by.*drhody;
     % solve for delta rho
-    drho=solve_lsqr(regions, drhodx, drhody);
+    drho=solve_lsqr(regions, drhodx, drhody,1e-11);
+    
+    drho=drho./b;
     
     % find corrected surface
     [sns, ctns, pns] = dz_from_drho(sns, ctns, pns, s, ct, p, drho );
@@ -164,7 +311,7 @@ end
 
 
 
-function drho=solve_lsqr(regions, xx, yy)
+function drho=solve_lsqr(regions, xx, yy,tol)
 user_input;
 [yi,xi]=size(xx);
 drho = nan(yi,xi);
@@ -179,7 +326,7 @@ for iregion=1:length(regions)
     
     en= reg & circshift(reg,-yi); %  find points between which phi_x can be computed. en is true at a point if its eastward neighbor is in the region
     if ~zonally_periodic;  % remove equations for eastern boundary for zonally-nonperiodic domain
-        en((xi-1)*yi:xi*yi)=false;
+        en((xi-1)*yi+1:xi*yi)=false;
     end
     sreg=cumsum(reg); % sparse indices of points forming the region (points of non-region are indexed with dummy)
     sreg_en=circshift(sreg,-yi); % sparse indices of eastward neighbours
@@ -195,29 +342,16 @@ for iregion=1:length(regions)
     j1_ns=sreg_nn(nn);
     j2_ns=sreg(nn);
     
-%     % make the average of Phi' zero
-%     % this should keep the surface from drifting away from the initial condition
-%     % we might change that to a different condition
-%     j1_condition=[1:sum(reg)];
-%     
-%     j1=[j1_ew',j1_ns',j1_condition];
-%     j2=[j2_ew',j2_ns'];
-%     
-%     i2=1:(sum(en)+sum(nn)); % i-indices for matrix coeff. -1
-%     i1=[i2, (sum(en)+sum(nn)+1)*ones(1,sum(reg))]; % i-indices for matrix coeff. 1
-
-    
-    % make the southern boundary zero 
-    % begin !!! THIS WORKS ONLY IN IDEALIZED DOMAINS !!!
-    j1_condition=[1:yi:yi*xi];
+    % make the average of Phi' zero
+    % this should keep the surface from drifting away from the initial condition
+    % we might change that to a different condition
+    j1_condition=[1:sum(reg)];
     
     j1=[j1_ew',j1_ns',j1_condition];
     j2=[j2_ew',j2_ns'];
     
     i2=1:(sum(en)+sum(nn)); % i-indices for matrix coeff. -1
-    ze=ones(1,length([1:yi:yi*xi]));
-    i1=[i2, (sum(en)+sum(nn)+1)*ze]; % i-indices for matrix coeff. 1
-    % end !!! THIS WORKS ONLY IN IDEALIZED DOMAINS !!!
+    i1=[i2, (sum(en)+sum(nn)+1)*ones(1,sum(reg))]; % i-indices for matrix coeff. 1
     
     % build sparse matrices
     A=sparse([i1,i2],[j1,j2],[ones(1,length(i1)),-ones(1,length(i2))]);
@@ -226,11 +360,11 @@ for iregion=1:length(regions)
     disp(['solving for region ',int2str(iregion)]);
     switch solver
         case 'iterative'
-            [x,dummyflag] = lsqr(A,b,1e-11,50000);
+            [x,dummyflag,relres] = lsqr(A,b,tol,1000);
         case 'exact'
             x = (A'*A)\(A'*b);
     end
-    
+   
     x = full(x)';
     
     % put density changes calculated by the least-squares solver into
@@ -251,10 +385,6 @@ delta = 1e-11;
 
 rho_surf=gsw_rho(sns(:),ctns(:),pns(:));
 t2=rho_surf-drho(:);
-
-% begin idealized experiments
-noadjust= drho(:)<=eps(1e3);
-% end idealized experiments
 
 inds=1:yi*xi;
 fr=true(1,yi*xi);
@@ -325,7 +455,7 @@ refine_ints=100;
 cnt=0;
 while 1
     cnt=cnt+1;
-
+    
     if cnt==1 % in first iteration pns_l is stacked vertically zi times, after that it is stacked refine_ints times
         stack=zi;
     elseif cnt==2
@@ -344,44 +474,12 @@ while 1
 
     F=t1-t2_stacked; % rho-(rho_s+rho'); find corrected surface by finding roots of this term
     
+    %dbstop in root_core at 11
+    [s,ct,p,sns_out,ctns_out,pns_out, inds, fr, dobreak]=root_core(F,delta,stack,inds,refine_ints,s,ct,p,sns_out,ctns_out,pns_out);
     
-    [final,fr,k_zc]=root_core(F,delta,stack);
-    
-    % begin idealized experiments
-    if cnt==1;
-        fr(noadjust)=false; % don't zoom in
-        final(noadjust)=false; % don't set to present present value, but to initial value
-        sns_out(noadjust)=sns(noadjust);
-        ctns_out(noadjust)=ctns(noadjust);
-        pns_out(noadjust)=pns(noadjust);
-    end
-    % end idealized experiments
-    
-    k_zc_3d=k_zc+stack*[0:size(F,2)-1]; % indices of flattened 3d-array where root has been found   
-    
-    sns_out(inds(final))=s(k_zc_3d(final)); % adjust surface where root has already been found
-    ctns_out(inds(final)) =ct(k_zc_3d(final));
-    pns_out(inds(final)) =p(k_zc_3d(final));
-    inds=inds(fr); % points where surface has not been corrected
-    
-    if all(~fr) % break out of loop if all roots have been found
+    if dobreak;
         break
     end
-    
-    k=k_zc_3d(fr);  % indices of flattened 3d-array where vertical resolution must be increased
-    
-    %keyboard
-    ds_ =  ( s(k+1) - s(k))/refine_ints; % increase resolution in the vertical
-    dt_ = (ct(k+1) - ct(k))/refine_ints;
-    dp_ =  (p(k+1) - p(k))/refine_ints;
-    
-    ds_ =bsxfun(@times, ds_, [0:refine_ints]');
-    dt_ = bsxfun(@times, dt_, [0:refine_ints]');
-    dp_ = bsxfun(@times, dp_, [0:refine_ints]');
-    
-    s =  bsxfun(@plus,s(k),ds_);
-    ct =  bsxfun(@plus,ct(k),dt_);
-    p =  bsxfun(@plus,p(k),dp_);
 
 end
 
@@ -501,7 +599,7 @@ end
 end 
 
 
-function diagnose_and_write(it,sns,ctns,pns,drho)
+function diagnose_and_write(it,sns,ctns,pns,drho,b,n2ns)
 user_input; % read nit, etc.
 
 if it==0 % initialize
@@ -516,7 +614,10 @@ if it==0 % initialize
     drho_rms_hist=nan(nit,1);
     drho_hist = nan(nit,yi,xi);
     
-    vars = {'sns_hist','ctns_hist','pns_hist','drho_rms_hist','drho_hist'};
+    b_hist = nan(nit,yi,xi);
+    n2ns_hist = nan(nit,yi,xi);
+    
+    vars = {'sns_hist','ctns_hist','pns_hist','drho_rms_hist','drho_hist','b_hist','n2ns_hist'};
     save(history_file, vars{:},'-v7.3');
 end
 
@@ -527,6 +628,9 @@ iteration_history.pns_hist(it+1,:,:) = permute(pns,[3 1 2]);
 
 if it>0
     iteration_history.drho_hist(it,:,:) = permute(drho,[3,1,2]);
+    
+    iteration_history.b_hist(it,:,:) = permute(b,[3,1,2]);
+    iteration_history.n2ns_hist(it,:,:) = permute(n2ns,[3,1,2]);
     
     %s1=ex(~isnan(ex));  
     %s2=ey(~isnan(ey));

@@ -19,8 +19,12 @@ function [final,fr,k_zc]=root_core(F,delta,stack)
     any_zc_F_stable=any(zc_F_stable,1);
     k_zc(~any_zc_F_stable)=1; % dummy to avoid zeros as indices
 
+    %save_netcdf02(reshape(k_zc,[43,90]),'k_zc','./data/k_zc.nc');
+    
     F_neg=F(k_zc+stack*[0:size(F,2)-1]); % value of F above the shallowest stable zero crossing (or dummy if there is no stable zero crossing)
     F_neg(~any_zc_F_stable)=nan; % remove dummy indices
+    
+    %save_netcdf02(reshape(F_neg,[43,90]),'F_neg','./data/F_neg.nc');
     
     final=(abs(F_neg)<=delta); % These are points with sufficiently small F.
 

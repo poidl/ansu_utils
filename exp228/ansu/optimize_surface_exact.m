@@ -226,7 +226,7 @@ for iregion=1:length(regions)
     disp(['solving for region ',int2str(iregion)]);
     switch solver
         case 'iterative'
-            [x,dummyflag] = lsqr(A,b,1e-7,50000);
+            [x,dummyflag] = lsqr(A,b,1e-11,50000);
         case 'exact'
             x = (A'*A)\(A'*b);
     end

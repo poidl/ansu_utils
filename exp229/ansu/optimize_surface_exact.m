@@ -120,9 +120,15 @@ while it<=nit;
     if it==1;
         save_netcdf02(drho,'drho','./data/drho.nc');
     end    
-    
+
+    if it==1;
+        save_netcdf02(sns,'sns','./data/sns_in.nc');
+    end 
     % find corrected surface
     [sns, ctns, pns] = dz_from_drho(sns, ctns, pns, s, ct, p, drho );
+    if it==1;
+        save_netcdf02(sns,'sns','./data/sns.nc');
+    end      
     
 end
 
@@ -228,7 +234,7 @@ for iregion=1:length(regions)
     disp(['solving for region ',int2str(iregion)]);
     switch solver
         case 'iterative'
-            [x,dummyflag,relres] = lsqr(A,b,1e-7,50000);
+            [x,dummyflag,relres] = lsqr(A,b,1e-11,50000);
         case 'exact'
             x = (A'*A)\(A'*b);
     end
@@ -324,7 +330,7 @@ refine_ints=100;
 cnt=0;
 while 1
     cnt=cnt+1;
-    
+    cnt
     if cnt==1 % in first iteration pns_l is stacked vertically zi times, after that it is stacked refine_ints times
         stack=zi;
     elseif cnt==2
@@ -342,8 +348,9 @@ while 1
     t1=gsw_rho(s(:,:),ct(:,:),pns_stacked); % 3-d density referenced to pressure of the current surface
 
     F=t1-t2_stacked; % rho-(rho_s+rho'); find corrected surface by finding roots of this term
-    
-    %dbstop in root_core at 11
+    %save_netcdf03(reshape(F,[zi,yi,xi]),'F','./data/F.nc');
+    %dbstop in root_core at 27
+    length(F(:))
     [final,fr,k_zc]=root_core(F,delta,stack);
     
     k_zc_3d=k_zc+stack*[0:size(F,2)-1]; % indices of flattened 3d-array where root has been found   
@@ -353,9 +360,10 @@ while 1
     pns_out(inds(final)) =p(k_zc_3d(final));
     inds=inds(fr); % points where surface has not been corrected
     
-    if all(~fr) % break out of loop if all roots have been found
-        break
-    end
+%    break
+     if all(~fr) % break out of loop if all roots have been found
+         break
+     end
     
     k=k_zc_3d(fr);  % indices of flattened 3d-array where vertical resolution must be increased
     

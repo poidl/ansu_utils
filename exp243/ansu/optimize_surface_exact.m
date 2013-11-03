@@ -47,8 +47,6 @@ user_input;
 %dbstop in mld at 50
 cut_off_choice = mld(s,ct,p); % mixed-layer depth
 
-save_netcdf02(cut_off_choice,'cut_off_choice','./data/cutoff.nc');
-
 stop_wetting=false;
 
 % iterations of inversion
@@ -75,8 +73,8 @@ while it<=nit;
     % surface if necessary.
 %     if it<nit && ~stop_wetting;
 %         disp('Wetting')
-%         %if (it==1||it==2); % it==2 may not be necessary for good starting surfaces, but it is necessary when starting from an isobar
-%         if (it==1); 
+%         if (it==1||it==2); % it==2 may not be necessary for good starting surfaces, but it is necessary when starting from an isobar
+%         %if (it==1); 
 %             [sns,ctns,pns,neighbours]=wetting(sns,ctns,pns,s,ct,p);
 %         else
 %             n_neighbours_old=sum(neighbours);
@@ -91,10 +89,6 @@ while it<=nit;
     
     % calculate delta^tilde rho
     [drhodx,drhody]=delta_tilde_rho(sns,ctns,pns);
-    
-%    save_netcdf02(drhodx,'drhodx','./data/drhodx.nc');
-%    save_netcdf02(drhody,'drhody','./data/drhody.nc');
-    
     
 %     % disregard data above mixed layer depth
 %     drhodx(pns<=cut_off_choice)=nan;
@@ -179,7 +173,7 @@ for iregion=1:length(regions)
     
     en= reg & circshift(reg,-yi); %  find points between which phi_x can be computed. en is true at a point if its eastward neighbor is in the region
     if ~zonally_periodic;  % remove equations for eastern boundary for zonally-nonperiodic domain
-        en((xi-1)*yi:xi*yi)=false;
+        en((xi-1)*yi+1:xi*yi)=false;
     end
     sreg=cumsum(reg); % sparse indices of points forming the region (points of non-region are indexed with dummy)
     sreg_en=circshift(sreg,-yi); % sparse indices of eastward neighbours
@@ -195,29 +189,16 @@ for iregion=1:length(regions)
     j1_ns=sreg_nn(nn);
     j2_ns=sreg(nn);
     
-%     % make the average of Phi' zero
-%     % this should keep the surface from drifting away from the initial condition
-%     % we might change that to a different condition
-%     j1_condition=[1:sum(reg)];
-%     
-%     j1=[j1_ew',j1_ns',j1_condition];
-%     j2=[j2_ew',j2_ns'];
-%     
-%     i2=1:(sum(en)+sum(nn)); % i-indices for matrix coeff. -1
-%     i1=[i2, (sum(en)+sum(nn)+1)*ones(1,sum(reg))]; % i-indices for matrix coeff. 1
-
-    
-    % make the southern boundary zero 
-    % begin !!! THIS WORKS ONLY IN IDEALIZED DOMAINS !!!
-    j1_condition=[1:yi:yi*xi];
+    % make the average of Phi' zero
+    % this should keep the surface from drifting away from the initial condition
+    % we might change that to a different condition
+    j1_condition=[1:sum(reg)];
     
     j1=[j1_ew',j1_ns',j1_condition];
     j2=[j2_ew',j2_ns'];
     
     i2=1:(sum(en)+sum(nn)); % i-indices for matrix coeff. -1
-    ze=ones(1,length([1:yi:yi*xi]));
-    i1=[i2, (sum(en)+sum(nn)+1)*ze]; % i-indices for matrix coeff. 1
-    % end !!! THIS WORKS ONLY IN IDEALIZED DOMAINS !!!
+    i1=[i2, (sum(en)+sum(nn)+1)*ones(1,sum(reg))]; % i-indices for matrix coeff. 1
     
     % build sparse matrices
     A=sparse([i1,i2],[j1,j2],[ones(1,length(i1)),-ones(1,length(i2))]);
@@ -226,11 +207,11 @@ for iregion=1:length(regions)
     disp(['solving for region ',int2str(iregion)]);
     switch solver
         case 'iterative'
-            [x,dummyflag] = lsqr(A,b,1e-11,50000);
+            [x,dummyflag,relres] = lsqr(A,b,1e-11,50000);
         case 'exact'
             x = (A'*A)\(A'*b);
     end
-    
+   
     x = full(x)';
     
     % put density changes calculated by the least-squares solver into
@@ -251,10 +232,6 @@ delta = 1e-11;
 
 rho_surf=gsw_rho(sns(:),ctns(:),pns(:));
 t2=rho_surf-drho(:);
-
-% begin idealized experiments
-noadjust= drho(:)<=eps(1e3);
-% end idealized experiments
 
 inds=1:yi*xi;
 fr=true(1,yi*xi);
@@ -325,7 +302,7 @@ refine_ints=100;
 cnt=0;
 while 1
     cnt=cnt+1;
-
+    
     if cnt==1 % in first iteration pns_l is stacked vertically zi times, after that it is stacked refine_ints times
         stack=zi;
     elseif cnt==2
@@ -344,44 +321,12 @@ while 1
 
     F=t1-t2_stacked; % rho-(rho_s+rho'); find corrected surface by finding roots of this term
     
+    %dbstop in root_core at 11
+    [s,ct,p,sns_out,ctns_out,pns_out, inds, fr, dobreak]=root_core(F,delta,stack,inds,refine_ints,s,ct,p,sns_out,ctns_out,pns_out);
     
-    [final,fr,k_zc]=root_core(F,delta,stack);
-    
-    % begin idealized experiments
-    if cnt==1;
-        fr(noadjust)=false; % don't zoom in
-        final(noadjust)=false; % don't set to present present value, but to initial value
-        sns_out(noadjust)=sns(noadjust);
-        ctns_out(noadjust)=ctns(noadjust);
-        pns_out(noadjust)=pns(noadjust);
-    end
-    % end idealized experiments
-    
-    k_zc_3d=k_zc+stack*[0:size(F,2)-1]; % indices of flattened 3d-array where root has been found   
-    
-    sns_out(inds(final))=s(k_zc_3d(final)); % adjust surface where root has already been found
-    ctns_out(inds(final)) =ct(k_zc_3d(final));
-    pns_out(inds(final)) =p(k_zc_3d(final));
-    inds=inds(fr); % points where surface has not been corrected
-    
-    if all(~fr) % break out of loop if all roots have been found
+    if dobreak;
         break
     end
-    
-    k=k_zc_3d(fr);  % indices of flattened 3d-array where vertical resolution must be increased
-    
-    %keyboard
-    ds_ =  ( s(k+1) - s(k))/refine_ints; % increase resolution in the vertical
-    dt_ = (ct(k+1) - ct(k))/refine_ints;
-    dp_ =  (p(k+1) - p(k))/refine_ints;
-    
-    ds_ =bsxfun(@times, ds_, [0:refine_ints]');
-    dt_ = bsxfun(@times, dt_, [0:refine_ints]');
-    dp_ = bsxfun(@times, dp_, [0:refine_ints]');
-    
-    s =  bsxfun(@plus,s(k),ds_);
-    ct =  bsxfun(@plus,ct(k),dt_);
-    p =  bsxfun(@plus,p(k),dp_);
 
 end
 
