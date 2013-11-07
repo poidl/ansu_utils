@@ -12,7 +12,7 @@ refine_ints=100;
 
 inds=1:yixi;
 fr=true(1,yixi);
-delta=1e-9;
+delta=1e-11;
 
 pns = nan(1,yixi);
 sns = nan(1,yixi);
@@ -43,7 +43,7 @@ while 1
 
     cast=gsw_rho(s(:,:),t(:,:),pmid); % 3-d density referenced to pmid
     F=cast-bottle; 
-   
+     disp(['size(F,2): ', num2str(size(F,2))]);
     [final,fr,k_zc]=root_core(F,delta,stack);
     
     k_zc_3d=k_zc+stack*[0:size(F,2)-1]; % indices of flattened 3d-array where root has been found

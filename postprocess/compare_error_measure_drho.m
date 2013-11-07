@@ -2,13 +2,13 @@
 clear all;
 close all;
 
-fname='../exp243/data/iteration_history.mat';
+fname='../exp251/data/iteration_history.mat';
 varname= 'drho_rms_hist';
 load(fname, varname);
 
 vv1=drho_rms_hist; % variable to plot
 
-fname='../exp244/data/iteration_history.mat';
+fname='../exp252/data/iteration_history.mat';
 varname= 'drho_rms_hist';
 load(fname, varname);
 

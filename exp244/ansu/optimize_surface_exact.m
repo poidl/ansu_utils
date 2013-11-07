@@ -122,7 +122,6 @@ while it<=nit;
     roy=0.5*(circshift(ro, [-1 0])+ro);
     roy(yi,:) = nan;
     
-    
 
     
 %dbstop in kappaxy at 67
@@ -208,8 +207,6 @@ while it<=nit;
         pns(bad)=nan;
         sns(bad)=nan;
         ctns(bad)=nan;
-        
-      
         
 
         % find independent regions -> a least-squares problem is solved for

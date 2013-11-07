@@ -70,23 +70,24 @@ while it<=nit;
     it=it+1; % start the next iteration
     disp(['Iteration nr.',int2str(it)]);
     
-
+save_netcdf02(sns,'snsin','./data/snsin.nc');
+    
     % Locations where outcropping occurs may have changed. Add points to
     % surface if necessary.
-%     if it<nit && ~stop_wetting;
-%         disp('Wetting')
-%         %if (it==1||it==2); % it==2 may not be necessary for good starting surfaces, but it is necessary when starting from an isobar
-%         if (it==1); 
-%             [sns,ctns,pns,neighbours]=wetting(sns,ctns,pns,s,ct,p);
-%         else
-%             n_neighbours_old=sum(neighbours);
-%             [sns,ctns,pns,neighbours]=wetting(sns,ctns,pns,s,ct,p);
-%             if sum(neighbours)>=n_neighbours_old;
-%                 stop_wetting=true;
-%                 disp(['Number of wet points added is equal or larger to previous iteration. Stop wetting.'])
-%             end
-%         end
-%     end
+    if it<nit && ~stop_wetting;
+        disp('Wetting')
+        %if (it==1||it==2); % it==2 may not be necessary for good starting surfaces, but it is necessary when starting from an isobar
+        if (it==1); 
+            [sns,ctns,pns,neighbours]=wetting(sns,ctns,pns,s,ct,p);
+        else
+            n_neighbours_old=sum(neighbours);
+            [sns,ctns,pns,neighbours]=wetting(sns,ctns,pns,s,ct,p);
+            if sum(neighbours)>=n_neighbours_old;
+                stop_wetting=true;
+                disp(['Number of wet points added is equal or larger to previous iteration. Stop wetting.'])
+            end
+        end
+    end
 
     
     % calculate delta^tilde rho
@@ -141,6 +142,8 @@ end
 
 function [sns,ctns,pns,neighbours]=wetting(sns,ctns,pns,s,ct,p)
 
+user_input;
+
 [yi,xi]=size(sns);
 
 wet=~isnan(squeeze(s(1,:,:))) & isnan(sns); % wet points at ocean surface excluding ans
@@ -150,6 +153,13 @@ sn=wet(:) & circshift(wets(:),1);
 en=wet(:) & circshift(wets(:),-yi);
 wn=wet(:) & circshift(wets(:),yi);
 
+nn(yi:yi:yi*xi)=false;
+sn(1:yi:(xi-1)*yi+1)=false;
+if ~zonally_periodic;
+    en((xi-1)*yi+1:xi*yi)=false;
+    wn(1:yi)=false;
+end
+
 % if a point adjacent to ans boundary has multiple neighbours, just do one neutral
 % calculation
 % TODO: start in eastward direction? Trevor has preference, see notes.
@@ -157,7 +167,18 @@ wn=wn & ~en;
 nn=nn & ~wn & ~en;
 sn=sn & ~nn & ~wn & ~en;
 
+% t1=~isnan(squeeze(s(1,:,:)));
+% t2=isnan(sns);
+% disp(['sum(~isnan(s(1,:,:)): ',num2str(sum(t1(:)))])
+% disp(['sum(isnan(sns)): ',num2str(sum(t2(:)))])
+% disp(['sum(wet(:)): ',num2str(sum(wet(:)))])
+% disp(['sum(wets(:)): ',num2str(sum(wets(:)))])
+% disp(['sum(en): ',num2str(sum(en))])
+% disp(['size(en): ',num2str(size(en))])
+
+
 neighbour=circshift(en,yi);
+disp(['sum(~isnan(sns(neighbour))): ',num2str(sum(~isnan(sns(neighbour))))])
 [sns(en),ctns(en),pns(en)] = depth_ntp_iter(sns(neighbour)',ctns(neighbour)',pns(neighbour)',s(:,en),ct(:,en),p(:,en)); 
 
 neighbour=circshift(wn,-yi);
@@ -172,10 +193,13 @@ neighbour=circshift(sn,-1);
 neighbours= en | wn | nn | sn;
 
 s1=sum(~isnan(sns(en)));
+disp(['S1: ',num2str(s1)])
 s2=sum(~isnan(sns(wn)));
 s3=sum(~isnan(sns(nn)));
 s4=sum(~isnan(sns(sn)));
 disp(['Number of points added: ',num2str(s1+s2+s3+s4)])
+disp(['sum(neighbours): ', num2str(sum(neighbours))])
+
 end
 
 
@@ -256,7 +280,7 @@ function [sns_out,ctns_out,pns_out] = dz_from_drho(sns, ctns, pns, s, ct, p, drh
 [zi,yi,xi]=size(s);
 drho = permute(drho, [3 1 2]);
 
-delta = 1e-9;
+delta = 1e-11;
 
 rho_surf=gsw_rho(sns(:),ctns(:),pns(:));
 t2=rho_surf-drho(:);
