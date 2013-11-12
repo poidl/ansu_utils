@@ -71,7 +71,12 @@ while it<=nit;
     disp(['Iteration nr.',int2str(it)]);
     
 save_netcdf02(sns,'snsin','./data/snsin.nc');
-    
+figure()
+h=imagesc(sns)
+set(h,'alphadata',~isnan(sns)) % white nans
+set(gca,'YDir','normal')
+title('snsin')
+
     % Locations where outcropping occurs may have changed. Add points to
     % surface if necessary.
     if it<nit && ~stop_wetting;
@@ -88,8 +93,13 @@ save_netcdf02(sns,'snsin','./data/snsin.nc');
             end
         end
     end
+save_netcdf02(sns,'snsout','./data/snsout.nc');
+figure()
+h=imagesc(sns)
+set(h,'alphadata',~isnan(sns)) % white nans
+set(gca,'YDir','normal')
+title('snsout')
 
-    
     % calculate delta^tilde rho
     [drhodx,drhody]=delta_tilde_rho(sns,ctns,pns);
     
@@ -153,6 +163,12 @@ sn=wet(:) & circshift(wets(:),1);
 en=wet(:) & circshift(wets(:),-yi);
 wn=wet(:) & circshift(wets(:),yi);
 
+figure()
+h=imagesc(reshape(en, [yi,xi]))
+set(h,'alphadata',~isnan(reshape(en, [yi,xi]))) % white nans
+set(gca,'YDir','normal')
+save_netcdf02(double(reshape(en, [yi,xi])),'en','./data/en.nc');
+
 nn(yi:yi:yi*xi)=false;
 sn(1:yi:(xi-1)*yi+1)=false;
 if ~zonally_periodic;
@@ -179,26 +195,30 @@ sn=sn & ~nn & ~wn & ~en;
 
 neighbour=circshift(en,yi);
 disp(['sum(~isnan(sns(neighbour))): ',num2str(sum(~isnan(sns(neighbour))))])
+save_netcdf01(sns(neighbour)', 'matl', './data/sns(neighbour).nc');
+save_netcdf02(s(:,en), 'matl', './data/s(:,en).nc');
 [sns(en),ctns(en),pns(en)] = depth_ntp_iter(sns(neighbour)',ctns(neighbour)',pns(neighbour)',s(:,en),ct(:,en),p(:,en)); 
 
-neighbour=circshift(wn,-yi);
-[sns(wn),ctns(wn),pns(wn)] = depth_ntp_iter(sns(neighbour)',ctns(neighbour)',pns(neighbour)',s(:,wn),ct(:,wn),p(:,wn)); 
+% neighbour=circshift(wn,-yi);
+% [sns(wn),ctns(wn),pns(wn)] = depth_ntp_iter(sns(neighbour)',ctns(neighbour)',pns(neighbour)',s(:,wn),ct(:,wn),p(:,wn)); 
+% 
+% neighbour=circshift(nn,1);
+% [sns(nn),ctns(nn),pns(nn)] = depth_ntp_iter(sns(neighbour)',ctns(neighbour)',pns(neighbour)',s(:,nn),ct(:,nn),p(:,nn)); 
+% 
+% neighbour=circshift(sn,-1);
+% [sns(sn),ctns(sn),pns(sn)] = depth_ntp_iter(sns(neighbour)',ctns(neighbour)',pns(neighbour)',s(:,sn),ct(:,sn),p(:,sn)); 
+% 
 
-neighbour=circshift(nn,1);
-[sns(nn),ctns(nn),pns(nn)] = depth_ntp_iter(sns(neighbour)',ctns(neighbour)',pns(neighbour)',s(:,nn),ct(:,nn),p(:,nn)); 
-
-neighbour=circshift(sn,-1);
-[sns(sn),ctns(sn),pns(sn)] = depth_ntp_iter(sns(neighbour)',ctns(neighbour)',pns(neighbour)',s(:,sn),ct(:,sn),p(:,sn)); 
-
-neighbours= en | wn | nn | sn;
+neighbours=1
+% neighbours= en | wn | nn | sn;
 
 s1=sum(~isnan(sns(en)));
 disp(['S1: ',num2str(s1)])
-s2=sum(~isnan(sns(wn)));
-s3=sum(~isnan(sns(nn)));
-s4=sum(~isnan(sns(sn)));
-disp(['Number of points added: ',num2str(s1+s2+s3+s4)])
-disp(['sum(neighbours): ', num2str(sum(neighbours))])
+% s2=sum(~isnan(sns(wn)));
+% s3=sum(~isnan(sns(nn)));
+% s4=sum(~isnan(sns(sn)));
+% disp(['Number of points added: ',num2str(s1+s2+s3+s4)])
+% disp(['sum(neighbours): ', num2str(sum(neighbours))])
 
 end
 

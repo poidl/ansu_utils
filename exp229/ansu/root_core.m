@@ -6,7 +6,7 @@ function [final,fr,k_zc]=root_core(F,delta,stack)
 
     F_p = F>=0;
     F_n = F<0;
-    
+        disp(['sum(F_p): ', num2str(sum(F_p(:)))])
     % TODO: a double-zero-crossing could arise due to linear interpolation for
     % values that are close to 0 and of equal sign in F?
     
@@ -18,7 +18,7 @@ function [final,fr,k_zc]=root_core(F,delta,stack)
     k_zc=sum(cs,1)+1;% vertical index of shallowest stable zero crossing
     any_zc_F_stable=any(zc_F_stable,1);
     k_zc(~any_zc_F_stable)=1; % dummy to avoid zeros as indices
-
+    disp(['sum(k_zc): ', num2str(sum(k_zc))])
     %save_netcdf02(reshape(k_zc,[43,90]),'k_zc','./data/k_zc.nc');
     
     F_neg=F(k_zc+stack*[0:size(F,2)-1]); % value of F above the shallowest stable zero crossing (or dummy if there is no stable zero crossing)

@@ -40,12 +40,15 @@ while 1
     
     pmid=0.5*(p0_stacked+p);
     bottle=gsw_rho(s0_stacked,t0_stacked,pmid);
-
+         save_netcdf02(bottle,'matl','./data/bottle.nc');
     cast=gsw_rho(s(:,:),t(:,:),pmid); % 3-d density referenced to pmid
+             save_netcdf02(cast,'matl','./data/cast.nc');
     F=cast-bottle; 
+    disp(['sum(~isnan(bottle(:))): ', num2str(sum(~isnan(bottle(:))))])
+    disp(['sum(~isnan(cast(:))): ', num2str(sum(~isnan(cast(:))))])
      disp(['size(F,2): ', num2str(size(F,2))]);
+         save_netcdf02(F,'matl','./data/Fneighbour.nc');
     [final,fr,k_zc]=root_core(F,delta,stack);
-    
     k_zc_3d=k_zc+stack*[0:size(F,2)-1]; % indices of flattened 3d-array where root has been found
     
     sns(inds(final))=s(k_zc_3d(final)); % adjust surface where root has already been found
@@ -53,9 +56,11 @@ while 1
     pns(inds(final)) =p(k_zc_3d(final));
     inds=inds(fr); % points where surface has not been corrected
     
-    if all(~fr) % break out of loop if all roots have been found
-        break
-    end
+%     if all(~fr) % break out of loop if all roots have been found
+%         break
+%     end
+
+  break
     
     k=k_zc_3d(fr);  % indices of flattened 3d-array where vertical resolution must be increased
     
