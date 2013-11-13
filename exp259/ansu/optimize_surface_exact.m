@@ -439,8 +439,8 @@ if it>0
     %no_pts =length(square);
     %iteration_history.eps_rms_hist(it,1) = sqrt(slope_square(it,1)/no_pts);
     
-    iteration_history.drhoxy_rms_hist(it,1)= sqrt( nanmean(drho(:).^2) );
-    iteration_history.drho_rms_hist(it,1)= sqrt( nanmean(drhodx(:).^2)+nanmean(drhody(:).^2) ); % staggerd grid
+    iteration_history.drho_rms_hist(it,1)= sqrt( nanmean(drho(:).^2) );
+    iteration_history.drhoxy_rms_hist(it,1)= sqrt( nanmean( [drhodx(:);drhody(:)] .^2)); % staggerd grid
     
 end
 
