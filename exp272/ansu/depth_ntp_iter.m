@@ -12,7 +12,7 @@ refine_ints=100;
 
 inds=1:yixi;
 fr=true(1,yixi);
-delta=1e-11;
+delta=1e-9;
 
 pns = nan(1,yixi);
 sns = nan(1,yixi);
@@ -40,10 +40,12 @@ while 1
     
     pmid=0.5*(p0_stacked+p);
     bottle=gsw_rho(s0_stacked,t0_stacked,pmid);
+
     cast=gsw_rho(s(:,:),t(:,:),pmid); % 3-d density referenced to pmid
     F=cast-bottle; 
-    
+   
     [final,fr,k_zc]=root_core(F,delta,stack);
+    
     k_zc_3d=k_zc+stack*[0:size(F,2)-1]; % indices of flattened 3d-array where root has been found
     
     sns(inds(final))=s(k_zc_3d(final)); % adjust surface where root has already been found

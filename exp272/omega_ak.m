@@ -13,49 +13,6 @@ for ii=1:size(s,3)
     end
 end
 
-% [zi,yi,xi]=size(s);
-% 
-% ii=yi*45+10;
-% ii=[ii:ii+2];
-% inds=[ ii ii+yi ii+2*yi ];
-% s=s(:,inds);
-% ct=ct(:,inds);
-% p=p(:,inds);
-% s=reshape(s,[size(s,1), 3 3]);
-% ct=reshape(ct,[size(s,1), 3 3]);
-% p=reshape(p,[size(s,1), 3 3]);
-
-% s(:,5)=nan;
-% ct(:,5)=nan;
-% p(:,5)=nan;
- %s(:,:,2)=nan;
- %ct(:,:,2)=nan;
- %p(:,:,2)=nan;
-% s(:,2,:)=nan;
-% ct(:,2,:)=nan;
-% p(:,2,:)=nan;
-
-
-% keep=[[yi*(xi-1)+1:yi*xi]'  [1:yi]'];
-% setnan=true(1,xi*yi);
-% setnan(keep)=false;
-% s(:,setnan)=nan;
-% ct(:,setnan)=nan;
-% p(:,setnan)=nan;
-% ct=ct(:,15:20,:);
-% p=p(:,15:20,:);
-% lats=lats(:,15:20,:);
-% longs=longs(:,15:20,:);
-
-% mydims=[size(s,1), size(keep)];
-% s=reshape(s,mydims);
-% ct=reshape(ct,mydims);
-% p=reshape(p,mydims);
-% lats=lats(:,keep);
-% longs=longs(:,keep);
-% reg=regions{1};
-% reg= intersect(reg, keep);
-% regions{1}=reg;
 
 lats=lats(1,:,1); longs=squeeze(longs(1,1,:))';
 sa=s; clear s; % the _subs_ data saves sa in variable 's'
@@ -111,14 +68,12 @@ display('optimizing density surface');
 tic
 
 %dbstop in  optimize_surface_exact at 232 if ii==1220
-%dbstop in optimize_surface_exact at 108
-dbstop in optimize_surface_exact at 126
+%dbstop in optimize_surface_exact at 177
 
 sns=squeeze(sns(Iak,:,:));
 ctns=squeeze(ctns(Iak,:,:));
 pns=squeeze(pns(Iak,:,:));
 
-save_netcdf(sa,ct,p,sns,ctns,pns);
 [sns_i(Iak,:,:),ctns_i(Iak,:,:),pns_i(Iak,:,:)] = optimize_surface_exact(sa,ct,p,sns,ctns,pns);
 display(['optimizing density surface took ',num2str(toc),' seconds']);
 

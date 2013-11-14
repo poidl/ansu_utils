@@ -47,8 +47,6 @@ user_input;
 %dbstop in mld at 50
 cut_off_choice = mld(s,ct,p); % mixed-layer depth
 
-save_netcdf02(cut_off_choice,'cut_off_choice','./data/cutoff.nc');
-
 stop_wetting=false;
 
 % iterations of inversion
@@ -77,7 +75,6 @@ while it<=nit;
         disp('Wetting')
         %if (it==1||it==2); % it==2 may not be necessary for good starting surfaces, but it is necessary when starting from an isobar
         if (it==1); 
-           % dbstop in wetting at 202
             [sns,ctns,pns,nneighbours]=wetting(sns,ctns,pns,s,ct,p);
         else
             nneighbours_old=nneighbours;
@@ -89,12 +86,10 @@ while it<=nit;
         end
     end
 
+    
     % calculate delta^tilde rho
     [drhodx,drhody]=delta_tilde_rho(sns,ctns,pns);
-    
-    save_netcdf02(drhodx,'drhodx','./data/drhodx.nc');
-    save_netcdf02(drhody,'drhody','./data/drhody.nc');
-    
+        
     
 %     % disregard data above mixed layer depth
 %     drhodx(pns<=cut_off_choice)=nan;
@@ -106,26 +101,12 @@ while it<=nit;
     % find independent regions -> a least-squares problem is solved for
     % each of these regions
     regions=find_regions(pns);
-    
-     regions=regions(1);
-%     
-%     [yi,xi]=size(pns);
-%     keep=[[yi*(xi-1)+1:yi*xi],  [1:yi]];
-%     reg=regions{1};
-%     reg= intersect(reg, keep);
-%     regions{1}=reg;
-    
+
     % solve for delta rho
     drho=solve_lsqr(regions, drhodx, drhody);
-    if it==1;
-        save_netcdf02(drho,'drho','./data/drho.nc');
-    end    
-
+    
     % find corrected surface
     [sns, ctns, pns] = dz_from_drho(sns, ctns, pns, s, ct, p, drho );
-    if it==1;
-        save_netcdf02(sns,'sns','./data/sns.nc');
-    end      
     
 end
 
@@ -185,14 +166,8 @@ s2=sum(~isnan(sns(wn)));
 s3=sum(~isnan(sns(nn)));
 s4=sum(~isnan(sns(sn)));
 
-disp(['S1: ',num2str(s1)])
-disp(['S2: ',num2str(s2)])
-disp(['S3: ',num2str(s3)])
-disp(['S4: ',num2str(s4)])
-
 nneighbours=s1+s2+s3+s4;
 disp(['Number of points added: ',num2str(nneighbours)])
-
 
 end
 
@@ -214,7 +189,7 @@ for iregion=1:length(regions)
     
     en= reg & circshift(reg,-yi); %  find points between which phi_x can be computed. en is true at a point if its eastward neighbor is in the region
     if ~zonally_periodic;  % remove equations for eastern boundary for zonally-nonperiodic domain
-        en((xi-1)*yi+1:xi*yi)=false;
+        en((xi-1)*yi:xi*yi)=false;
     end
     sreg=cumsum(reg); % sparse indices of points forming the region (points of non-region are indexed with dummy)
     sreg_en=circshift(sreg,-yi); % sparse indices of eastward neighbours
@@ -245,19 +220,14 @@ for iregion=1:length(regions)
     A=sparse([i1,i2],[j1,j2],[ones(1,length(i1)),-ones(1,length(i2))]);
     b=sparse( [xx(en); yy(nn); 0 ]);
     
-    save_netcdf01(j1,'j1','./data/j1.nc');
-    save_netcdf01(j2,'j2','./data/j2.nc');
-    save_netcdf01(b,'b','./data/b.nc');
-    
     disp(['solving for region ',int2str(iregion)]);
     switch solver
         case 'iterative'
-            [x,dummyflag,relres] = lsqr(A,b,1e-11,50000);
+            [x,dummyflag] = lsqr(A,b,1e-7,50000);
         case 'exact'
             x = (A'*A)\(A'*b);
     end
     
-    disp(['norm(b-A*x): ',num2str(relres*norm(b))])
     x = full(x)';
     
     % put density changes calculated by the least-squares solver into
@@ -274,7 +244,7 @@ function [sns_out,ctns_out,pns_out] = dz_from_drho(sns, ctns, pns, s, ct, p, drh
 [zi,yi,xi]=size(s);
 drho = permute(drho, [3 1 2]);
 
-delta = 1e-11;
+delta = 1e-9;
 
 rho_surf=gsw_rho(sns(:),ctns(:),pns(:));
 t2=rho_surf-drho(:);
@@ -348,7 +318,7 @@ refine_ints=100;
 cnt=0;
 while 1
     cnt=cnt+1;
-    cnt
+    
     if cnt==1 % in first iteration pns_l is stacked vertically zi times, after that it is stacked refine_ints times
         stack=zi;
     elseif cnt==2
@@ -366,9 +336,8 @@ while 1
     t1=gsw_rho(s(:,:),ct(:,:),pns_stacked); % 3-d density referenced to pressure of the current surface
 
     F=t1-t2_stacked; % rho-(rho_s+rho'); find corrected surface by finding roots of this term
-    %save_netcdf03(reshape(F,[zi,yi,xi]),'F','./data/F.nc');
-    %dbstop in root_core at 27
-    length(F(:))
+    
+    %dbstop in root_core at 11
     [final,fr,k_zc]=root_core(F,delta,stack);
     
     k_zc_3d=k_zc+stack*[0:size(F,2)-1]; % indices of flattened 3d-array where root has been found   
@@ -378,10 +347,9 @@ while 1
     pns_out(inds(final)) =p(k_zc_3d(final));
     inds=inds(fr); % points where surface has not been corrected
     
-%    break
-     if all(~fr) % break out of loop if all roots have been found
-         break
-     end
+    if all(~fr) % break out of loop if all roots have been found
+        break
+    end
     
     k=k_zc_3d(fr);  % indices of flattened 3d-array where vertical resolution must be increased
     
