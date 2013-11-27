@@ -7,8 +7,8 @@ addpath(genpath('.'))
 % subsample data
 subsample_gk_ak_gamma;
 
-% construct zero-helicity ocean from the subsampled data
-zero_hel_no_continents
+% % construct zero-helicity ocean from the subsampled data
+% zero_hel_no_continents
 
 % run Paul's script
 omega_ak

@@ -34,27 +34,6 @@ sa=s; clear s; % the _subs_ data saves sa in variable 's'
 % ct(:,setnan)=nan;
 % %p(:,setnan)=nan;
 
-%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-% helicity spike
-ilon=find(longs>=180,1,'first');
-ilat=find(lats>=-60,1,'first');
-
-ct_cast=squeeze(ct(:,ilat,ilon));
-s_cast=squeeze(sa(:,ilat,ilon));
-r=gsw_rho_CT_exact(s_cast, ct_cast,p(:,ilat,ilon));
-
-ctd=linspace(10.0, 2.0, size(ct,1));
-ctnew_cast=ct_cast+ctd';
-snew_cast=gsw_SA_from_rho_CT_exact(r,ctnew_cast,p(:,ilat,ilon));
-
-% check
-rnew=gsw_rho_CT_exact(snew_cast, ctnew_cast,p(:,ilat,ilon));
-disp(['Max. dens. deviation: ', num2str(max(abs(r-rnew)))])
-
-ct(:,ilat,ilon)=ctnew_cast;
-sa(:,ilat,ilon)=snew_cast;
-%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-
 [longs,lats] = meshgrid(longs,lats);
 
 [zi,yi,xi] = size(sa);
