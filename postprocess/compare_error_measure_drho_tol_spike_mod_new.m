@@ -35,9 +35,15 @@ p2=nan*ones(1,nexp);
 cols={'b','r','g','k'};
 
 for i=1:nexp
-    p1(i)=semilogy(xax,drhoxy(i,:)-mini(1),'color',cols{i},'LineWidth',2)
-    hold on
-    semilogy(xax,drhoxy(i,:)-mini(1),'color',cols{i},'linestyle','+','LineWidth',2)
+    if 1
+        p1(i)=semilogy(xax,drhoxy(i,:)-mini(1),'color',cols{i},'LineWidth',2)
+        hold on
+        semilogy(xax,drhoxy(i,:)-mini(1),'color',cols{i},'linestyle','+','LineWidth',2)
+    else
+        p1(i)=semilogy(xax,drhoxy(i,:),'color',cols{i},'LineWidth',2)
+        hold on
+        semilogy(xax,drhoxy(i,:),'color',cols{i},'linestyle','+','LineWidth',2)
+    end
     
     p2(i)=semilogy(xax,drho(i,:),'color',cols{i},'linestyle','--','LineWidth',2)
     hold on

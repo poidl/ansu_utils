@@ -14,7 +14,7 @@ vv=pns_hist; % variable to plot
 vv=diff(vv,1);
 nit=size(vv,1);
 
-nfig=2; % number of figures (pages)
+nfig=3; % number of figures (pages)
 ncols=2; % number of columns
 nrows=3; % number of rows
 nsp=ncols*nrows; % max. number of subplots per figure
@@ -90,7 +90,7 @@ for icolorscale=1:1
                 
             elseif colorscale{icolorscale}=='lin'
                 tag='lin';
-
+                vp=vp-repmat(nanmean(vp,2), [1 size(vp,2)]);
                 fac(isp)=max(abs(vp(:))); vp=vp/fac(isp); 
                 %vp=vp/cmax2;
 

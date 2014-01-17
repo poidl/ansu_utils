@@ -64,8 +64,7 @@ for icolorscale=1:1
             vp=squeeze(vv(iit,:,:));
 
             if colorscale{icolorscale}=='log'
-                    error('not implemented')
-%                 tag='log';
+                tag='log';
 %                 tmp=vp;
 %                 tmp(vp<=0)=nan;
 %                 pos=log10(   tmp );
@@ -87,6 +86,27 @@ for icolorscale=1:1
 %                 caxis([cmin cmax])
 %                 cb=colorbar('location','southoutside','position',[left,bottom-0.5*wsrow,spwidth,0.1*wsrow]);
 %                 xlabel(cb,'Red: log10($\Phi''>0$)  $\phantom{xxxxxx}$ Blue: log10( -1$\cdot(\Phi''<0$))','interpreter','latex','fontsize',18)
+
+
+                vp(vp==0)=nan;
+                vp(vp<0)=-vp(vp<0);
+                vp=log10(abs(vp));
+                %vp(neg)=-vp(neg);
+                
+                h=imagesc(lon,lat,vp);
+                colormap([fliplr(cmp2);flipud(cmp2)]) ;
+%                 caxis([-1 1])
+%                 cbh(isp)=colorbar('Location','SouthOutside','position',[left,bottom-0.4*wsrow,spwidth,0.1*wsrow]);
+%                 if isp==6 % 
+%                     for ii=1:nsp
+%                         set(cbh(ii),'XTick',-1:0.25:1)
+%                         set(cbh(ii),'XTickLabel',num2str(fac(ii)*str2num(get(cbh(ii),'XTickLabel')),'%2.1e'));
+%                         %set(cbh(ii),'XTickLabel',num2str(cmax2*str2num(get(cbh(ii),'XTickLabel')),'%2.1e'));
+%                         xlabel(cbh(ii),'$\Delta \rho$','interpreter','latex','fontsize',18)
+%                     end
+%                 end
+                hold on
+                
                 
             elseif colorscale{icolorscale}=='lin'
                 tag='lin';
@@ -112,8 +132,8 @@ for icolorscale=1:1
 
             set(h,'alphadata',~isnan(vp)) % white nans
             set(gca,'YDir','normal')
-            load ('coast_data.mat');
-            plot(coast_data_long,coast_data_lat,'k-','LineWidth',1);
+            %load ('coast_data.mat');
+            %plot(coast_data_long,coast_data_lat,'k-','LineWidth',1);
             title(['Iteration ',num2str(ip-1)])
 
 
