@@ -430,6 +430,7 @@ end
 
 function diagnose_and_write(it,sns,ctns,pns,drhodx,drhody,drho,res,b,n2ns)
 user_input; % read nit, etc.
+load dxdy.mat % for epsilon
 
 if it==0 % initialize
     [yi,xi]=size(sns);
@@ -443,6 +444,7 @@ if it==0 % initialize
     
     drhoxy_rms_hist=nan(nit,1); 
     drho_rms_hist=nan(nit,1);
+    epsilon_rms_hist=nan(nit,1);
     
     drho_hist = nan(nit,yi,xi);
     res_hist = nan(nit,1);
@@ -450,7 +452,7 @@ if it==0 % initialize
     b_hist = nan(nit,yi,xi);
     n2ns_hist = nan(nit,yi,xi);
     
-    vars = {'sns_hist','ctns_hist','pns_hist','drhoxy_rms_hist','drho_rms_hist','drho_hist','res_hist','b_hist','n2ns_hist'};
+    vars = {'sns_hist','ctns_hist','pns_hist','drhoxy_rms_hist','drho_rms_hist','epsilon_rms_hist','drho_hist','res_hist','b_hist','n2ns_hist'};
     save(history_file, vars{:},'-v7.3');
 end
 
@@ -475,7 +477,7 @@ if it>0
     
     iteration_history.drho_rms_hist(it,1)= sqrt( nanmean(drho(:).^2) );
     iteration_history.drhoxy_rms_hist(it,1)= sqrt( nanmean( [drhodx(:);drhody(:)] .^2)); % staggerd grid
-    
+    iteration_history.epsilon_rms_hist(it,1)= sqrt( nanmean( [drhodx(:)./dx(:);drhody(:)./dy(:)] .^2)); % staggerd grid
 end
 
 end

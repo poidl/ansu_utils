@@ -175,7 +175,7 @@ while it<=nit;
     %keyboard
     ro=gsw_rho(sns,ctns,pns);
     dp = (-9.81 * (drho)) ./ (3e-6 + ro.*n2ns);
-    damp = 0.2;
+    damp = 0.3;
     pns=pns+damp.*dp;
     [ctns,sns] = var_on_surf(pns,p,ct,s);
 end
