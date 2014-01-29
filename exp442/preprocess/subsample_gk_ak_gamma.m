@@ -7,10 +7,11 @@ load('/home/z3439823/mymatlab/omega/data_paul/gk_ak_gamma.mat', vars{:})
 
 ilon=[1:4:length(longs)];
 ilat=[2:4:length(lats)];
+ip=[1:4:size(s,1)];
 
-s=s(:,ilat,ilon);
-ct=ct(:,ilat,ilon);
-p=p(:,ilat,ilon);
+s=s(ip,ilat,ilon);
+ct=ct(ip,ilat,ilon);
+p=p(ip,ilat,ilon);
 lat=lats(ilat);
 lon=longs(ilon);
 

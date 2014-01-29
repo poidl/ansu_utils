@@ -14,7 +14,6 @@ for ii=1:size(s,3)
 end
 
 load('data/b.mat')
-b=b(1:4:end,:,:);
 for ii=1:size(s,3)
     for jj=1:size(s,2)
         if all(isnan(b(:,jj,ii)))
@@ -23,6 +22,7 @@ for ii=1:size(s,3)
         end
     end
 end
+
 
 % the lats/longs are only used to calculate epsilon in diagnose_and_write()
 % they are not necessary to calculate omega surfaces
@@ -117,7 +117,7 @@ tic
 %dbstop in  optimize_surface_exact at 232 if ii==1220
 %dbstop in optimize_surface_exact at 177
 %dbstop in optimize_surface_exact at 104
-%dbstop in optimize_surface_exact at 174
+%dbstop in optimize_surface_exact at 252
 
 
 [sns_i(Iak,:,:),ctns_i(Iak,:,:),pns_i(Iak,:,:)] = optimize_surface_exact(sa,ct,p,sns,ctns,pns);
