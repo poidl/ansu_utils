@@ -13,16 +13,16 @@ for ii=1:size(s,3)
     end
 end
 
-load('data/b.mat')
-b=b(1:4:end,:,:);
-for ii=1:size(s,3)
-    for jj=1:size(s,2)
-        if all(isnan(b(:,jj,ii)))
-            s(:,jj,ii)=nan;
-            ct(:,jj,ii)=nan;
-        end
-    end
-end
+% load('data/b.mat')
+% b=b(1:4:end,:,:);
+% for ii=1:size(s,3)
+%     for jj=1:size(s,2)
+%         if all(isnan(b(:,jj,ii)))
+%             s(:,jj,ii)=nan;
+%             ct(:,jj,ii)=nan;
+%         end
+%     end
+% end
 
 
 % the lats/longs are only used to calculate epsilon in diagnose_and_write()
@@ -120,6 +120,10 @@ tic
 %dbstop in optimize_surface_exact at 104
 %dbstop in optimize_surface_exact at 166
 
+load('data/mask.mat')
+sns(~mask)=nan;
+ctns(~mask)=nan;
+pns(~mask)=nan;
 
 [sns_i(Iak,:,:),ctns_i(Iak,:,:),pns_i(Iak,:,:)] = optimize_surface_exact(sa,ct,p,sns,ctns,pns);
 display(['optimizing density surface took ',num2str(toc),' seconds']);
