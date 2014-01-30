@@ -2,7 +2,7 @@
 clear all;
 close all;
 
-runs=549:551;
+runs=556:558;
 
 fname=['../exp',num2str(runs(1)),'/data/iteration_history.mat'];
 load(fname,'pns_hist');
