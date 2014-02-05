@@ -3,12 +3,12 @@
 clear all;
 close all;
 
-fname='../exp324/data/iteration_history.mat';
+fname='../exp568/data/iteration_history.mat';
 load(fname,'drho_rms_hist','epsilon_rms_hist');
 amp1=drho_rms_hist; 
 eps1=epsilon_rms_hist;
 
-fname='../exp325/data/iteration_history.mat';
+fname='../exp569/data/iteration_history.mat';
 load(fname,'drho_rms_hist','epsilon_rms_hist');
 amp2=drho_rms_hist; 
 eps2=epsilon_rms_hist;
