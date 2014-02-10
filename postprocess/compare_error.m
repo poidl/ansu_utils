@@ -3,16 +3,21 @@
 clear all;
 close all;
 
-fname='../exp559/data/iteration_history.mat';
+fname='../exp571/data/iteration_history.mat';
 load(fname,'drho_rms_hist','epsilon_rms_hist');
 amp1=drho_rms_hist; 
 eps1=epsilon_rms_hist;
 
-fname='../exp560/data/iteration_history.mat';
+fname='../exp575/data/iteration_history.mat';
 load(fname,'drho_rms_hist','epsilon_rms_hist');
 amp2=drho_rms_hist; 
 eps2=epsilon_rms_hist;
 
+iend=5
+amp1=amp1(1:iend,:,:);
+amp2=amp2(1:iend,:,:);
+eps1=eps1(1:iend,:,:);
+eps2=eps2(1:iend,:,:);
 
 nit=size(amp1,1);
 
@@ -53,4 +58,4 @@ grid on
 xlabel('Iterations')
 ylabel('$$\Phi_{rms}^i\,\, \rm [kg/m^{-3}]$$','interpreter','latex','fontsize',13)
 %axis tight
-print('-dpdf','-r200',['figures/compare_error559_560_lastnob'])
+print('-dpdf','-r200',['figures/compare_error571_575'])

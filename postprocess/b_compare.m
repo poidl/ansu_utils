@@ -3,7 +3,7 @@
 clear all;
 close all;
 
-runs=[444,550,554];
+runs=[444,550,571];
 fname=['../exp',num2str(runs(1)),'/data/input_data.mat'];
 load(fname);
 [zi,yi,xi]=size(s);

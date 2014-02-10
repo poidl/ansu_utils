@@ -118,7 +118,7 @@ tic
 %dbstop in  optimize_surface_exact at 232 if ii==1220
 %dbstop in optimize_surface_exact at 177
 %dbstop in optimize_surface_exact at 104
-%dbstop in optimize_surface_exact at 166
+%dbstop in optimize_surface_exact at 328
 
 % load('data/mask.mat')
 % sns(~mask)=nan;
