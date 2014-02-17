@@ -54,7 +54,7 @@ hold on
 [jis,iis]=ind2sub(size(va),istation);
 disp(['istation: ',num2str(lon(iis)),' Lon ',num2str(lat(jis)),' Lat'])
 disp(['value at istation: ',num2str(va(istation),20)])
-plot(lon(iis),lat(jis),'rx','markersize',20,'linewidth',2)
+plot(lon(iis),lat(jis),'kx','markersize',20,'linewidth',3)
 
 xlabel('Longitude')
 ylabel('Latitude')
