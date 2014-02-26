@@ -44,7 +44,7 @@ semilogy(xax,eps2,'ro')
 grid on
 xlim([1 4])
 xlabel('Iterations')
-ylabel('$$\epsilon_{rms}^i\,\, \rm [kg/m^{-2}]$$','interpreter','latex','fontsize',13)
+ylabel('$$\epsilon_{rms}^i\,\, \rm [kg\,m^{-4}]$$','interpreter','latex','fontsize',13)
 ax2=axes('position',p);
 set(ax2,'Visible','off')
 text(-0.32,1.07,['a)'],'units','normalized','fontsize',12,'Parent',ax2)
@@ -74,7 +74,7 @@ undershoot*1852*60*4
 
 grid on
 xlabel('Iterations')
-ylabel('$$\epsilon_{rms}^i\,\, \rm [kg/m^{-2}]$$','interpreter','latex','fontsize',13)
+ylabel('$$\epsilon_{rms}^i\,\, \rm [kg\,m^{-4}]$$','interpreter','latex','fontsize',13)
 text(-0.32,0.5,['c)'],'units','normalized','fontsize',12,'Parent',ax2)
 xlim([1 nit])
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
@@ -87,11 +87,24 @@ hold on
 semilogy(xax,amp1,'o')
 p3=semilogy(xax,amp2,'r','LineWidth',1);
 semilogy(xax,amp2,'ro','LineWidth',1)
-xlim([1 nit])
-
 grid on
+xlim([1 nit])
+ylim([1e-14 1])
+
+
+delta=1e-11;
+xl=get(sub,'xlim');
+yl=get(sub,'ylim');
+%yl(1)=1e-15
+
+X=[xl(1) xl(2) xl(2) xl(1) xl(1)];
+Y=[delta delta yl(1) yl(1) delta];
+fi=fill(X,Y,0.9*[1 1 1],'edgecolor','none')
+uistack(fi,'bottom')
+set(gca,'layer','top')
+
 xlabel('Iterations')
-ylabel('$$\Phi_{rms}^i\,\, \rm [kg/m^{-3}]$$','interpreter','latex','fontsize',13)
+ylabel('$$\Phi_{rms}^i\,\, \rm [kg\,m^{-3}]$$','interpreter','latex','fontsize',13)
 
 ax2=axes('position',p);
 set(ax2,'Visible','off')
@@ -129,7 +142,7 @@ semilogy(xax,pr2,'ro')
 
 grid on
 xlabel('Iterations')
-%ylabel('$$\epsilon_{rms}^i\,\, \rm [kg/m^{-2}]$$','interpreter','latex','fontsize',13)
+%ylabel('$$\epsilon_{rms}^i\,\, \rm [kg\,m^{-2}]$$','interpreter','latex','fontsize',13)
 ylabel('$$\max_A{|p''^{\,i}|}\,\, \rm [db]$$','interpreter','latex','fontsize',13) % ,'fontsize',13)
 text(-0.22,0.5,['d)'],'units','normalized','fontsize',12,'Parent',ax2)
 xlim([1 iend])

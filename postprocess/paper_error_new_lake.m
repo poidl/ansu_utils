@@ -57,7 +57,7 @@ fi=fill(X,Y,0.9*[1 1 1],'edgecolor','none')
 uistack(fi,'bottom')
 set(gca,'layer','top')
 xlabel('Iterations')
-ylabel('$$\epsilon_{rms}^i\,\, \rm [kg/m^{-2}]$$','interpreter','latex','fontsize',13)
+ylabel('$$\epsilon_{rms}^i\,\, \rm [kg\,m^{-4}]$$','interpreter','latex','fontsize',13)
 ax2=axes('position',p);
 set(ax2,'Visible','off')
 text(-0.32,1.07,['a)'],'units','normalized','fontsize',12,'Parent',ax2)
@@ -149,7 +149,7 @@ fi=fill(X,Y,0.9*[1 1 1],'edgecolor','none')
 uistack(fi,'bottom')
 set(gca,'layer','top')
 xlabel('Iterations')
-ylabel('$$\Phi_{rms}^i\,\, \rm [kg/m^{-3}]$$','interpreter','latex','fontsize',13)
+ylabel('$$\Phi_{rms}^i\,\, \rm [kg\,m^{-3}]$$','interpreter','latex','fontsize',13)
 
 ax2=axes('position',p);
 set(ax2,'Visible','off')
