@@ -44,7 +44,7 @@ semilogy(xax,eps2,'ro')
 grid on
 xlim([1 4])
 xlabel('Iterations')
-ylabel('$$\epsilon_{rms}^i\,\, \rm [kg\,m^{-4}]$$','interpreter','latex','fontsize',13)
+ylabel('$$||\epsilon^i||\,\, \rm [kg\,m^{-4}]$$','interpreter','latex','fontsize',13)
 ax2=axes('position',p);
 set(ax2,'Visible','off')
 text(-0.32,1.07,['a)'],'units','normalized','fontsize',12,'Parent',ax2)
@@ -75,7 +75,7 @@ undershoot*1852*60*4
 
 grid on
 xlabel('Iterations')
-ylabel('$$\epsilon_{rms}^i\,\, \rm [kg\,m^{-4}]$$','interpreter','latex','fontsize',13)
+ylabel('$$||\epsilon^i||\,\, \rm [kg\,m^{-4}]$$','interpreter','latex','fontsize',13)
 text(-0.32,0.5,['c)'],'units','normalized','fontsize',12,'Parent',ax2)
 xlim([1 nit])
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
@@ -105,7 +105,7 @@ uistack(fi,'bottom')
 set(gca,'layer','top')
 
 xlabel('Iterations')
-ylabel('$$\Phi_{rms}^i\,\, \rm [kg\,m^{-3}]$$','interpreter','latex','fontsize',13)
+ylabel('$$||\Phi^i||\,\, \rm [kg\,m^{-3}]$$','interpreter','latex','fontsize',13)
 
 ax2=axes('position',p);
 set(ax2,'Visible','off')
