@@ -4,7 +4,7 @@ clear all;
 close all;
 
 run1=571;
-run2=575;
+run2=574;
 
 fname=['../exp',num2str(run1),'/data/iteration_history.mat'];
 load(fname,'drho_rms_hist','epsilon_rms_hist','pns_hist');
@@ -104,7 +104,7 @@ uistack(fi,'bottom')
 set(gca,'layer','top')
 
 xlabel('Iterations')
-ylabel('$$||\Phi^i||\,\, \rm [kg\,m^{-3}]$$','interpreter','latex','fontsize',13)
+ylabel('$$||\Phi^i||,\,||(\Phi^*/b^*)^i||\,\, \rm [kg\,m^{-3}]$$','interpreter','latex','fontsize',13)
 
 ax2=axes('position',p);
 set(ax2,'Visible','off')

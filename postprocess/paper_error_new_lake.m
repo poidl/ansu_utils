@@ -149,7 +149,7 @@ fi=fill(X,Y,0.9*[1 1 1],'edgecolor','none')
 uistack(fi,'bottom')
 set(gca,'layer','top')
 xlabel('Iterations')
-ylabel('$$||\Phi^i||\,\, \rm [kg\,m^{-3}]$$','interpreter','latex','fontsize',13)
+ylabel('$$||\Phi^i||,\,||(\Phi/b)^i||\,\, \rm [kg\,m^{-3}]$$','interpreter','latex','fontsize',13)
 
 ax2=axes('position',p);
 set(ax2,'Visible','off')
