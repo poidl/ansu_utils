@@ -1,16 +1,16 @@
 clear all
 close all
-f1='/home/nfs/z3439823/mymatlab/omega/ansu_utils/exp229/data/sns(neighbour).nc';
-f2='/home/nfs/z3439823/eclipse/workspace/ansu/sns_(inbr).nc';
-dr1=ncread(f1,'matl');
-dr2=ncread(f2,'fort');
-
-[dr1,i1]=sort(dr1);
-[dr2,i2]=sort(dr2);
-
-plot(dr2,'*r')
-hold on
-plot(dr1,'*')
+% f1='/home/nfs/z3439823/mymatlab/omega/ansu_utils/exp229/data/sns(neighbour).nc';
+% f2='/home/nfs/z3439823/eclipse/workspace/ansu/sns_(inbr).nc';
+% dr1=ncread(f1,'matl');
+% dr2=ncread(f2,'fort');
+% 
+% [dr1,i1]=sort(dr1);
+% [dr2,i2]=sort(dr2);
+% 
+% plot(dr2,'*r')
+% hold on
+% plot(dr1,'*')
 
 % f1='/home/nfs/z3439823/mymatlab/omega/ansu_utils/exp229/data/s(:,en).nc';
 % f2='/home/nfs/z3439823/eclipse/workspace/ansu/s_(iwo,:).nc';%
@@ -22,9 +22,12 @@ plot(dr1,'*')
 f2='/home/nfs/z3439823/fortran/debug/cast.nc';
  f1='/home/nfs/z3439823/mymatlab/omega/ansu_utils/exp229/data/Fneighbour.nc';
 % f2='/home/nfs/z3439823/eclipse/workspace/ansu/Fneighbour.nc';
-f2='/home/nfs/z3439823/fortran/debug/Fneighbour.nc';
-dr1=ncread(f1,'matl');
-dr2=ncread(f2,'fort');
+f1='/home/nfs/z3439823/eclipse/workspace/ansu/pns_dumb.nc';
+f2='/home/nfs/z3439823/eclipse/workspace/ansu/pns.nc';
+
+
+dr1=ncread(f1,'pns');
+dr2=ncread(f2,'pns');
 
 v1=dr1(:,1);
 v2=dr2(:,1);

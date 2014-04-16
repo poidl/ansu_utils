@@ -72,20 +72,20 @@ while it<=nit;
 
     % Locations where outcropping occurs may have changed. Add points to
     % surface if necessary.
-    if it<nit && ~stop_wetting;
-        disp('Wetting')
-        if (it==1||it==2); % it==2 may not be necessary for good starting surfaces, but it is necessary when starting from an isobar
-        %if (it==1); 
-            [sns,ctns,pns,nneighbours]=wetting(sns,ctns,pns,s,ct,p);
-        else
-            nneighbours_old=nneighbours;
-            [sns,ctns,pns,nneighbours]=wetting(sns,ctns,pns,s,ct,p);
-            if nneighbours>=nneighbours_old;
-                stop_wetting=true;
-                disp(['Number of wet points added is equal or larger to previous iteration. Stop wetting.'])
-            end
-        end
-    end
+%     if it<nit && ~stop_wetting;
+%         disp('Wetting')
+%         if (it==1||it==2); % it==2 may not be necessary for good starting surfaces, but it is necessary when starting from an isobar
+%         %if (it==1); 
+%             [sns,ctns,pns,nneighbours]=wetting(sns,ctns,pns,s,ct,p);
+%         else
+%             nneighbours_old=nneighbours;
+%             [sns,ctns,pns,nneighbours]=wetting(sns,ctns,pns,s,ct,p);
+%             if nneighbours>=nneighbours_old;
+%                 stop_wetting=true;
+%                 disp(['Number of wet points added is equal or larger to previous iteration. Stop wetting.'])
+%             end
+%         end
+%     end
 
     
     % calculate delta^tilde rho
@@ -165,8 +165,9 @@ while it<=nit;
     % find corrected surface
     %[sns, ctns, pns] = dz_from_drho(sns, ctns, pns, s, ct, p, drho );
     %dbstop in depth_ntp_iter_drho at 5
-    %keyboard
+%    keyboard
     [sns, ctns, pns] = depth_ntp_iter_drho(sns(:)', ctns(:)', pns(:)', s(:,:), ct(:,:), p(:,:), drho(:)' );
+%    keyboard
     [zi,yi,xi]=size(s);
     sns=reshape(sns,[yi xi]);
     ctns=reshape(ctns,[yi xi]);

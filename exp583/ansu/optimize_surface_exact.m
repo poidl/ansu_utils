@@ -216,6 +216,7 @@ neighbour=inds_neighbour(en);
 
 inds_neighbour=circshift(inds,yi);
 neighbour=inds_neighbour(wn);
+keyboard
 [sns(wn),ctns(wn),pns(wn)] = depth_ntp_iter(sns(neighbour)',ctns(neighbour)',pns(neighbour)',s(:,wn),ct(:,wn),p(:,wn)); 
 
 inds_neighbour=circshift(inds,-1);

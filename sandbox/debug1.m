@@ -35,12 +35,12 @@ disp('Method             SA       CT       P')
 disp(['Jackett:           ',num2str(SAns), '  ', num2str(CTns), '  ', num2str(pns)])
 [SAns,CTns,pns] = depth_ntp_guillaume(s3,ct3,p3,s12',ct12',p12');
 disp(['Guillaume:         ',num2str(SAns), '  ', num2str(CTns), '  ', num2str(pns)])
-[SAns,CTns,pns] = depth_ntp_jackett_fzero(s3,ct3,p3,s12',ct12',p12');
-disp(['Jackett   (fzero): ',num2str(SAns), '  ', num2str(CTns), '  ', num2str(pns)])
-[SAns,CTns,pns] = depth_ntp_guillaume_fzero(s3,ct3,p3,s12',ct12',p12');
-disp(['Guillaume (fzero): ',num2str(SAns), '  ', num2str(CTns), '  ', num2str(pns)])
+%[SAns,CTns,pns] = depth_ntp_jackett_fzero(s3,ct3,p3,s12',ct12',p12');
+%disp(['Jackett   (fzero): ',num2str(SAns), '  ', num2str(CTns), '  ', num2str(pns)])
+%[SAns,CTns,pns] = depth_ntp_guillaume_fzero(s3,ct3,p3,s12',ct12',p12');
+%disp(['Guillaume (fzero): ',num2str(SAns), '  ', num2str(CTns), '  ', num2str(pns)])
 [SAns,CTns,pns] = depth_ntp_iter(s3,ct3,p3,s12,ct12,p12);
 disp(['depth_ntp_iter:    ',num2str(SAns), '  ', num2str(CTns), '  ', num2str(pns)])
 
-disp([num2str(s3),', ',num2str(ct3),', ',num2str(p3),', ',num2str(s12'),', ',num2str(ct12'),', ',num2str(p12')])
+%disp([num2str(s3),', ',num2str(ct3),', ',num2str(p3),', ',num2str(s12'),', ',num2str(ct12'),', ',num2str(p12')])
 

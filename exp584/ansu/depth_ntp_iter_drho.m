@@ -4,14 +4,18 @@ function [sns,ctns,pns] = depth_ntp_iter_drho(s0,ct0,p0,s,ct,p,drho)
 
 zi=size(s,1);
 yixi=size(s,2);
-refine_ints=100;
+refine_ints=2;
 
 inds=1:yixi;
-fr=true(1,yixi);
+%fr=true(1,yixi);
 
 pns = nan(1,yixi);
 sns = nan(1,yixi);
 ctns = nan(1,yixi);
+
+%%% discard land; inds contains the indices of remaining points
+[s0,ct0,p0,s,ct,p,drho,inds]=discard_land(s0,ct0,p0,s,ct,p,drho,inds);
+fr=true(1,length(inds));
 
 s0_stacked=repmat(s0(fr),[zi 1]); % stack vertically
 ct0_stacked=repmat(ct0(fr),[zi 1]); 
@@ -22,7 +26,7 @@ drho_stacked=repmat(drho(fr),[zi 1]);
 cnt=0;
 while 1
     cnt=cnt+1;
-    
+    %keyboard
     pmid=0.5*(p0_stacked+p);
     bottle=gsw_rho(s0_stacked,ct0_stacked,pmid);
 
@@ -41,6 +45,22 @@ while 1
     
     drho_stacked=drho_stacked(1:refine_ints+1,fr);
    
+end
+end
+
+
+function [s0,ct0,p0,s,ct,p,drho,inds]=discard_land(s0,ct0,p0,s,ct,p,drho,inds)
+    nn=~isnan(s0);
+    iwet=~(sum(nn,1)==0);
+
+    s0=s0(iwet);
+    ct0=ct0(iwet);
+    p0=p0(iwet);
+    drho=drho(iwet);
+    s=s(:,iwet);
+    ct=ct(:,iwet);
+    p=p(:,iwet);
+    inds=inds(iwet);
 end
 
 
