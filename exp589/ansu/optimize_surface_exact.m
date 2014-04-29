@@ -156,7 +156,13 @@ while it<=nit;
     else
     
         regions=find_regions(pns);
-
+%   keyboard
+        if no_land_mask
+            load('data/latlon.mat')
+            [ocean, n] = gamma_ocean_and_n(s,ct,p,lon,lat);
+            save('data/no_land_mask.mat', 'ocean', 'n')
+        end
+        
         % solve for delta rho
         [drho,res]=solve_lsqr(regions, drhodx, drhody);    
     
@@ -243,6 +249,9 @@ end
 
 function [drho,res]=solve_lsqr(regions, xx, yy)
 user_input;
+if no_land_mask
+    load('data/no_land_mask.mat')
+end
 [yi,xi]=size(xx);
 drho = nan(yi,xi);
 
@@ -255,6 +264,13 @@ for iregion=1:length(regions)
     reg(region)=true;
     
     en= reg & circshift(reg,-yi); %  find points between which a zonal gradient can be computed. en is true at a point if its eastward neighbor is in the region
+
+    if no_land_mask % in case there is no land mask (e.g. in a climatology data set with too coarse resolution to represent land)
+        % 'en_in_other_basin' is true if there is land (in reality) between this point and its eastern neighbour
+        test=ocean(:).*circshift(ocean(:),-yi);
+        en_in_other_basin= (test==32 | test==5) & reg;
+        en(en_in_other_basin)=false;
+    end
     if ~zonally_periodic;  % remove equations for eastern boundary for zonally-nonperiodic domain
         en((xi-1)*yi+1:xi*yi)=false;
     end
@@ -266,6 +282,12 @@ for iregion=1:length(regions)
     
     % set up north-south equations for weighted inversion
     nn= reg & circshift(reg,-1);
+    if no_land_mask % in case there is no land mask (e.g. in a climatology data set with too coarse resolution to represent land)
+        % 'nn_in_other_basin' is true if there is land (in reality) between this point and its northern neighbour
+        test=ocean(:).*circshift(ocean(:),-1);
+        nn_in_other_basin= (test==32 | test==5) & reg;
+        nn(nn_in_other_basin)=false;
+    end
     nn(yi:yi:xi*yi)=false; % remove equations for northern boundary
     sreg_nn=circshift(sreg,-1);
     
@@ -290,6 +312,7 @@ for iregion=1:length(regions)
     disp(['solving for region ',int2str(iregion)]);
     switch solver
         case 'iterative'
+            %dbstop in lsqr at 321      
             [x,flag,relres] = lsqr(A,b,1e-15,5000);
             res=relres;
             if flag ~=0 
@@ -431,7 +454,7 @@ end
 
 function diagnose_and_write(it,sns,ctns,pns,drhodx,drhody,drho,res,b,n2ns)
 user_input; % read nit, etc.
-load dxdy.mat % for epsilon
+load('data/dxdy.mat') % for epsilon
 
 if it==0 % initialize
     [yi,xi]=size(sns);
