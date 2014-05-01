@@ -36,6 +36,7 @@ lats=squeeze(lats(1,:,:)); longs=squeeze(longs(1,:,:));
 [dy,dx]=scale_fac(lats,longs);
 save dxdy.mat dx dy
 
+vsurf=var_on_surf_stef(va,p,surf)
 
 lat=lats(:,1);
 lon=longs(1,:);
