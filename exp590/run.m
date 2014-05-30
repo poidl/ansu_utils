@@ -14,7 +14,7 @@ subsample_gk_ak_gamma;
 omega_ak
 
 %plot
-pressure_ns
+%pressure_ns
 % delta_pressure_final
 % drho
 % if 0;

@@ -49,10 +49,12 @@ user_input;
 cut_off_choice = mld(s,ct,p); % mixed-layer depth
 
 stop_wetting=false;
+nit_success=-99;
 
 % iterations of inversion
 it=0; % start with it=0 and increment it after the initial surface is written to output
 while it<=nit;
+
     
     % diagnose
     if save_iterations;
@@ -62,7 +64,9 @@ while it<=nit;
         diagnose_and_write(it,sns,ctns,pns,drhodx,drhody,drho,res,b,n2ns);
     end
     
-    if it==nit; % break out if done
+    if it==nit % break out if done
+        error('Maximum number of iterations exceeded, but still appending points.')
+    elseif it==nit_success
         break
     end
     
@@ -72,20 +76,15 @@ while it<=nit;
 
     % Locations where outcropping occurs may have changed. Add points to
     % surface if necessary.
-%     if it<nit && ~stop_wetting;
-%         disp('Wetting')
-%         if (it==1||it==2); % it==2 may not be necessary for good starting surfaces, but it is necessary when starting from an isobar
-% %        if (it==1); 
-            [sns,ctns,pns,nneighbours]=wetting(sns,ctns,pns,s,ct,p);
-%         else
-%             nneighbours_old=nneighbours;
-%             [sns,ctns,pns,nneighbours]=wetting(sns,ctns,pns,s,ct,p);
-%             if nneighbours>=nneighbours_old;
-%                 stop_wetting=true;
-%                 disp(['Number of wet points added is equal or larger to previous iteration. Stop wetting.'])
-%             end
-%         end
-%     end
+    if it<nit && ~stop_wetting;
+        disp('Appending') 
+        [sns,ctns,pns,nneighbours]=wetting(sns,ctns,pns,s,ct,p);
+        if nneighbours==0;
+            stop_wetting=true;
+            nit_success=it+nit_after_wetting; % keep adjusting without appending for nit_after_wetting iterations.
+            disp(['Number of appended points is zero. Stop wetting.'])
+        end        
+    end
 
     
     % calculate delta^tilde rho

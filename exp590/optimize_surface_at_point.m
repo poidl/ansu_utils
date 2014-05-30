@@ -27,8 +27,8 @@ pns(isnan(sns))=nan;
 % surfaces.
 % If only a single connected surface is supplied, this can lead to a lot
 % of "append and optimize" iterations in the automated lateral extension of
-% the surface. Consider the following example: We want to know the
-% optimized surface intersection with the point=[1000 dbar at 16 South, 188
+% the surface. The following example illustrates this: We want to know the
+% optimized surface intersecting with the point=[1000 dbar at 16 South, 188
 % East] and start with the single connected 1000 dbar isobar intersecting
 % with the point. This surface may be disconnected from the artic ocean (if it
 % is deeper than Denmark Strait etc.), depending on the horizontal
@@ -45,7 +45,6 @@ pns(isnan(sns))=nan;
 
 [sns,ctns,pns] = optimize_surface_exact(s,ct,p,sns,ctns,pns);
 
-keyboard
 istation=ilat+ny*(ilon-1);
 
 setnan=true(size(sns));
@@ -56,7 +55,7 @@ for iregion=1:length(regions)
         setnan(region)=false;        
         pns(setnan)=nan;
         sns(setnan)=nan;
-        ctns(setnan)=nan;      
+        ctns(setnan)=nan;
     end
 end 
 

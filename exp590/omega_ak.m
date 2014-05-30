@@ -48,7 +48,13 @@ display('optimizing density surface');
 tic
 [sns,ctns,pns] =optimize_surface_at_point(sa,ct,p,point);
 display(['optimizing density surface took ',num2str(toc),' seconds']);
+vars={'pns'}
+save('data/pns_final.mat','pns')
 
+% figure()
+% h=imagesc(pns);
+% set(h,'alphadata',~isnan(pns));
+% set(gca,'YDir','normal');
 
 
         
