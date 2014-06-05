@@ -29,8 +29,6 @@ save('data/latlon.mat', 'lat', 'lon')
 
 sa=s; clear s; % the _subs_ data saves sa in variable 's'
 
-no_land_mask_test;
-
 [zi,yi,xi] = size(sa);
 
 lat=lat(:,1);

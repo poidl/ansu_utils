@@ -15,7 +15,7 @@ omega_ak
 
 %plot
 pressure_ns
-%delta_pressure_final
+delta_pressure_final
 % drho
 % if 0;
 %     error_measure
