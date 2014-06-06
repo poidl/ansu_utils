@@ -34,7 +34,6 @@ sa=s; clear s; % the _subs_ data saves sa in variable 's'
 lat=lat(:,1);
 lon=lon(1,:);
 [mini,ilat]=min(abs(lat+16)); % Jackett & McDougall 97: 16 South 188 East
-[mini,ilat]=min(abs(lat+0)); % test
 [mini,ilon]=min(abs(lon-188));
 [zi,yi,xi]=size(sa);
 istation=ilat+yi*(ilon-1);

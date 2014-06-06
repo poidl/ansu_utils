@@ -154,9 +154,10 @@ function [drhodx,drhody,regions,b]=use_bstar(drhodx,drhody,sns,ctns,pns,s,ct,p)
     [zi,yi,xi]=size(s);
     [n2,pmid]=gsw_Nsquared(s,ct,p);
     
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%    
     n2=reshape(n2,[zi-1,yi,xi]);
     pmid=reshape(pmid,[zi-1,yi,xi]);
-    
+   
     % regrid onto drhox and drhoy grids
     n2x=  0.5*(circshift(n2,   [0 0 -1])+n2);
     n2y=  0.5*(circshift(n2,   [0 -1 0])+n2);
@@ -168,7 +169,36 @@ function [drhodx,drhody,regions,b]=use_bstar(drhodx,drhody,sns,ctns,pns,s,ct,p)
     rky=0.5*(circshift(rky,   [-1 0 0])+rky);
     rkx=rkx(1:end-1,:,:);
     rky=rky(1:end-1,:,:);
-    
+
+% %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%     n2=reshape(n2,[zi-1,yi,xi]);
+%     n2=cat(1,n2,n2(end,:,:));
+%     for ii=1:xi
+%         for jj=1:yi
+%             for kk=2:zi
+%                 if isnan(n2(kk,jj,ii)) && ~isnan(s(kk,jj,ii))
+%                     n2(kk,jj,ii)=n2(kk-1,jj,ii);
+%                 end
+%             end
+%         end
+%     end
+%     
+%     %keyboard
+%     pmid=p;
+%     %keyboard
+%     % regrid onto drhox and drhoy grids
+%     n2x=  0.5*(circshift(n2,   [0 0 -1])+n2);
+%     n2y=  0.5*(circshift(n2,   [0 -1 0])+n2);
+%     pmidx=0.5*(circshift(pmid, [0 0 -1])+pmid);
+%     pmidy=0.5*(circshift(pmid, [0 -1 0])+pmid);
+%  
+%     [rkx,rky]=grad_rhokappa(s,ct,p); % defined on drho grid
+% %     rkx=0.5*(circshift(rkx,   [-1 0 0])+rkx); % regrid on vertical n2 grid
+% %     rky=0.5*(circshift(rky,   [-1 0 0])+rky);
+% %     rkx=rkx(1:end-1,:,:);
+% %     rky=rky(1:end-1,:,:);
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
     g=9.81;
     lnbx=(g^2./n2x).*rkx;
     lnby=(g^2./n2y).*rky;    
@@ -232,120 +262,6 @@ function [drhodx,drhody,regions,b]=use_bstar(drhodx,drhody,sns,ctns,pns,s,ct,p)
 
     drhodx=bx.*drhodx;
     drhody=by.*drhody;
-    
-%    pns(remove_eq)=nan;
-%	sns(remove_eq)=nan;
-%	ctns(remove_eq)=nan;
-    
-%     %keyboard
-% close all
-% 
-%     va=tmp;
-%     va(~isnan(va))=1;
-%     va(isnan(va))=0;
-%     h=imagesc(va)
-%     set(h,'alphadata',~isnan(va))
-%     set(gca,'YDir','normal')
-%     title('tmp');
-% 
-%         figure()
-%     va=eqe;
-%     %va(~isnan(va))=1;
-%     %va(isnan(va))=0;
-%     h=imagesc(va)
-%     set(h,'alphadata',~isnan(va))
-%     set(gca,'YDir','normal')
-%     title('eqe'); 
-%     
-%     figure()
-%     va=lnbx;
-%     va(~isnan(va))=1;
-%     va(isnan(va))=0;
-%     h=imagesc(va)
-%     set(h,'alphadata',~isnan(va))
-%     set(gca,'YDir','normal')
-%     title('lnbx');
-% 
-%         figure()
-%     va=lnby;
-%     va(~isnan(va))=1;
-%     va(isnan(va))=0;
-%     h=imagesc(va)
-%     set(h,'alphadata',~isnan(va))
-%     set(gca,'YDir','normal')
-%     title('lnby');
-%     
-%     figure()
-%     va=isnan(lnbx)&eqe;
-%     %va(~isnan(va))=1;
-%     %va(isnan(va))=0;
-%     h=imagesc(va)
-%     set(h,'alphadata',~isnan(va))
-%     set(gca,'YDir','normal')
-%     title('remove x');
-% 
-%     figure()
-%     va=isnan(lnby)&eqn;
-%     %va(~isnan(va))=1;
-%     %va(isnan(va))=0;
-%     h=imagesc(va)
-%     set(h,'alphadata',~isnan(va))
-%     set(gca,'YDir','normal')
-%     title('remove y');
-%     
-%     figure()
-%     va=remove_eq;
-%     %va(~isnan(va))=1;
-%     %va(isnan(va))=0;
-%     h=imagesc(va)
-%     set(h,'alphadata',~isnan(va))
-%     set(gca,'YDir','normal')
-%     title('remove_eq');
-% keyboard
-%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-%     sns(isnan(n2ns))=nan;
-%     ctns(isnan(n2ns))=nan;
-%     pns(isnan(n2ns))=nan;
-% 
-%     n2nsx=0.5*(circshift(n2ns, [0 -1])+n2ns);
-%     if ~zonally_periodic;
-%         n2nsx(:,xi) = nan;
-%     end
-%     n2nsy=0.5*(circshift(n2ns, [-1 0])+n2ns);
-%     n2nsy(yi,:) = nan;
-% 
-%     ro=gsw_rho(sns,ctns,pns);
-%     rox=0.5*(circshift(ro, [0 -1])+ro);
-%     if ~zonally_periodic;
-%         rox(:,xi) = nan;
-%     end
-%     roy=0.5*(circshift(ro, [-1 0])+ro);
-%     roy(yi,:) = nan;
-% 
-%     [kx_ns,ky_ns]=kappaxy(s,ct,p,pns);
-% 
-%     fx=9.81^2*rox.*(1./n2nsx).*kx_ns;
-%     fy=9.81^2*roy.*(1./n2nsy).*ky_ns;
-% 
-%     iyeq=(~isnan(pns) & ~isnan(circshift(pns,[-1 0])));
-%     bad=(iyeq & isnan(ky_ns));
-% 
-%     pns(bad)=nan;
-%     sns(bad)=nan;
-%     ctns(bad)=nan;
-% 
-%     % find independent regions -> a least-squares problem is solved for
-%     % each of these regions
-%     regions=find_regions(pns);
-% 
-%     lnb=solve_lsqr(regions,fx,fy);
-%     b=exp(lnb);
-% 
-%     bx=0.5*(circshift(b,[0 -1])+b);
-%     by=0.5*(circshift(b,[-1 0])+b);
-% 
-%     drhodx=bx.*drhodx;
-%     drhody=by.*drhody;
     
 end
 
