@@ -41,10 +41,10 @@ omega_3d
 % [zi,yi,xi]=size(sa);
 % istation=ilat+yi*(ilon-1);
 % save('data/stationindex.mat','istation')
-
-
-%save_netcdf(sa,ct,p,sns,ctns,pns);
-
+% 
+% 
+% %save_netcdf(sa,ct,p,sns,ctns,pns);
+% 
 % point=[1000 ilat ilon];
 % 
 % display('optimizing density surface');

@@ -103,17 +103,11 @@ while it<=nit_max;
         [ocean, n] = gamma_ocean_and_n(s,ct,p,lon,lat);
         save('data/no_land_mask.mat', 'ocean', 'n')
     end
-    
-    
+ 
     % calculate delta^tilde rho
     [drhodx,drhody]=delta_tilde_rho(sns,ctns,pns);
   
     if use_b    
-%         regions=find_regions(pns);
-%         [drho_tmp,res_tmp]=solve_lsqr(regions, drhodx, drhody);
-%         [~,~,pns_tmp] = depth_ntp_simple(sns(:)', ctns(:)', pns(:)', s(:,:), ct(:,:), p(:,:), drho_tmp(:)' );
-%         n1=sum(~isnan(pns_tmp(:)));
-        %[drhodx,drhody,sns,ctns,pns]=use_bstar(drhodx,drhody,sns,ctns,pns,s,ct,p);
         [drhodx,drhody,regions,b]=use_bstar(drhodx,drhody,sns,ctns,pns,s,ct,p);
         %keyboard
     else
@@ -125,12 +119,8 @@ while it<=nit_max;
     if use_b
         drho=drho./b;
     end
-    %keyboard
 
     [sns, ctns, pns] = depth_ntp_simple(sns(:)', ctns(:)', pns(:)', s(:,:), ct(:,:), p(:,:), drho(:)' );
-
-%     n2=sum(~isnan(pns(:)));
-%     disp(['**********Lost: ',num2str(n1-n2)])
     
     [zi,yi,xi]=size(s);
     sns=reshape(sns,[yi xi]);
@@ -328,6 +318,9 @@ user_input;
 if no_land_mask
     load('data/no_land_mask.mat')
 end
+if clamp_on_point
+    load('data/stationindex.mat') % istation
+end
 [yi,xi]=size(xx);
 drho = nan(yi,xi);
 
@@ -370,16 +363,23 @@ for iregion=1:length(regions)
     j1_ns=sreg_nn(nn);
     j2_ns=sreg(nn);
     
-    % make the average of the potential zero
-    % this should keep the surface from drifting away from the initial condition
-    % we might change that to a different condition
-    j1_condition=[1:sum(reg)];
+    % clamp at point
+    if ismember(istation,region)
+        j1_condition=sreg(istation);
+    else
+        j1_condition=[1:sum(reg)];
+    end
     
     j1=[j1_ew',j1_ns',j1_condition];
     j2=[j2_ew',j2_ns'];
     
     i2=1:(sum(en)+sum(nn)); % i-indices for matrix coeff. -1
-    i1=[i2, (sum(en)+sum(nn)+1)*ones(1,sum(reg))]; % i-indices for matrix coeff. 1
+    if ismember(istation,region)
+        i1=[i2, (sum(en)+sum(nn)+1)]; % i-indices for matrix coeff. 1
+    else
+        i1=[i2, (sum(en)+sum(nn)+1)*ones(1,sum(reg))]; % i-indices for matrix coeff. 1
+    end
+
     
     % build sparse matrices
     A=sparse([i1,i2],[j1,j2],[ones(1,length(i1)),-ones(1,length(i2))]);

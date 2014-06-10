@@ -15,16 +15,25 @@ p0=point(1);
 ilat=point(2);
 ilon=point(3);
 
-% as initial surface, we choose an iso-surface of potential density with reference pressure p0 
-sig=gsw_rho(s,ct,p0+zeros(size(s))); 
-sigc=sig(:,ilat,ilon);
-pc=p(:,ilat,ilon);
-si=var_on_surf_stef(sigc,pc,p0); % pot. dens. value of initial surface
-si=si+zeros(ny,nx);
+% This is on crack; sig may be non-monotonous and iso-surfaces may be
+% branched. Better start from isobar.
 
-sns=var_on_surf_stef(s,sig,si);
-ctns=var_on_surf_stef(ct,sig,si);
-pns=var_on_surf_stef(p,sig,si);
+% as initial surface, we choose an iso-surface of potential density with reference pressure p0 
+% sig=gsw_rho(s,ct,p0+zeros(size(s))); 
+% sigc=sig(:,ilat,ilon);
+% pc=p(:,ilat,ilon);
+% si=var_on_surf_stef(sigc,pc,p0); % pot. dens. value of initial surface
+% si=si+zeros(ny,nx);
+
+% sns=var_on_surf_stef(s,sig,si);
+% ctns=var_on_surf_stef(ct,sig,si);
+% pns=var_on_surf_stef(p,sig,si);
+
+% start from isobar
+pns= p0+zeros(ny,nx);
+sns=var_on_surf_stef(s,p,pns);
+ctns=var_on_surf_stef(ct,p,pns);
+pns(isnan(sns))=nan;
 
 [sns,ctns,pns] = optimize_surface_exact(s,ct,p,sns,ctns,pns);
 
