@@ -336,6 +336,7 @@ for iregion=1:length(regions)
 
     if no_land_mask % in case there is no land mask (e.g. in a climatology data set with too coarse resolution to represent land)
         % 'en_in_other_basin' is true if there is land (in reality) between this point and its eastern neighbour
+        error('find_regions() doesn''t have this functionality yet')
         test=ocean(:).*circshift(ocean(:),-yi);
         en_in_other_basin= (test==5) & reg;
         en(en_in_other_basin)=false;

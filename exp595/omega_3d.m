@@ -22,7 +22,7 @@ last=p(last3d);
 last=reshape(last,[yi xi]);
 last(land)=nan;
 
-save_netcdf(bottom,'bottom','data/bottom.nc')
+save_netcdf(bottom,'bottom','data/nc/bottom.nc')
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 p_e=zeros(yi,xi);
@@ -37,6 +37,9 @@ dp=500;
 pbb=(dp:dp:p2);
 md=p2;
 
+ilat_=[];
+ilon_=[];
+
 cnt=1;
 while md>dp;
     disp(['backbone Nr. ',num2str(cnt)])
@@ -48,16 +51,20 @@ while md>dp;
         deeper=(ps>p_e);
         p_e(deeper)=ps(deeper);
     end
-    
-    save_netcdf(p_e,'p_e',['data/p_e',num2str(cnt),'.nc'])
 
     if cnt==80
         keyboard
     end
     dist=last-p_e;
     
-    save_netcdf(p_e,'p_e',['data/p_e',num2str(cnt),'.nc'])
-    save_netcdf(dist,'dist',['data/dist',num2str(cnt),'.nc'])
+    ilat_=[ilat_,ilat];
+    ilon_=[ilon_,ilon];
+    save_netcdf(p_e,'p_e',['data/nc/p_e/p_e',num2str(cnt),'.nc'])
+    save_netcdf(dist,'dist',['data/nc/dist/dist',num2str(cnt),'.nc'])
+    
+    save_netcdf(sns3d,'sns3d',['data/nc/sns3d/sns3d',num2str(cnt),'.nc'])
+    save_netcdf(ctns3d,'ctns3d',['data/nc/ctns3d/ctns3d',num2str(cnt),'.nc'])
+    save_netcdf(pns3d,'pns3d',['data/nc/pns3d/pns3d',num2str(cnt),'.nc'])
     
     [md,imax]=max(dist(:));
     [ilat,ilon]=ind2sub(size(dist),imax);
@@ -69,6 +76,7 @@ while md>dp;
     pbb=(p1+dp:dp:p2);
     cnt=cnt+1;
 end
+save('data/bb_coords.mat','ilat_','ilon_')
 keyboard
 
 

@@ -1,5 +1,5 @@
 use_b=false;
-no_land_mask=true;
+no_land_mask=false;
 clamp_on_point=true;
 zonally_periodic=true;
 solver = 'iterative';

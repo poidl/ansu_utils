@@ -31,6 +31,7 @@ sa=s; clear s; % the _subs_ data saves sa in variable 's'
 
 [zi,yi,xi] = size(sa);
 
+make_land_mask
 
 omega_3d
 

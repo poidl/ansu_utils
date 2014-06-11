@@ -15,9 +15,9 @@ if 1
         [sns3d(kk,:,:),ctns3d(kk,:,:),pns3d(kk,:,:)] =optimize_surface_at_point(sa,ct,p,point);
 
     end
-    save('data/omega_3d.mat','sns3d','ctns3d','pns3d')
+    %save('data/omega_3d.mat','sns3d','ctns3d','pns3d')
 else
-    load('data/omega_3d.mat')
+    %load('data/omega_3d.mat')
 end
 
 end

@@ -1,5 +1,5 @@
 function [sns,ctns,pns] = optimize_surface_at_point(s,ct,p,point)
-
+user_input;
 % construct an optimized approximately neutral surface intersecting with 
 % point=[p0 ilat ilon], whose horizontal coordinates coincide with a grid point of
 % the hydrography, and whose pressure is arbitrary
@@ -40,6 +40,7 @@ pns(isnan(sns))=nan;
 istation=ilat+ny*(ilon-1);
 
 % we only keep the one single (connected) surface on which p0 is located.
+% Attention if no_land_mask=true !
 setnan=true(size(sns));
 regions=find_regions(sns);
 for iregion=1:length(regions)
@@ -51,5 +52,9 @@ for iregion=1:length(regions)
         ctns(setnan)=nan;
     end
 end 
+if no_land_mask 
+    %load('data/no_land_mask.mat')
+    error('this doesn''t work yet')
+end
 
 end
