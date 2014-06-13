@@ -7,8 +7,6 @@ load('data/bb_coords_final.mat')
 %ncread('data/nc/ctns3d_final.nc','ctns3d')
 pns3d=ncread('data/nc/pns3d_final.nc','pns3d');
 
-for 
-
 [ns,ny,nx]=size(pns3d);
 
 for kk=1:ns

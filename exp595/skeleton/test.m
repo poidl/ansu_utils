@@ -1,7 +1,7 @@
 close all
 clear all
 
-load('data/bb_coords_surface.mat','ilat_','ilon_')
+load('data/bb_coords_surface.mat')
 dlat=diff(ilat_);
 dlat=dlat~=0;
 dlon=diff(ilon_);
@@ -9,7 +9,7 @@ dlon=dlon~=0;
 dl=dlat|dlon;
 ns_surf=sum(dl)+1;
 
-load('data/bb_coords_bottom.mat','ilat_','ilon_')
+load('data/bb_coords_bottom.mat')
 dlat=diff(ilat_);
 dlat=dlat~=0;
 dlon=diff(ilon_);
@@ -55,6 +55,7 @@ for ii=1:ns_bot
     
     nk_bottom=[nk_bottom,size(p1,1)];
 end
+
 nk_surface=cumsum(nk_surface);
 nk_bottom=cumsum(nk_bottom);
 
@@ -62,11 +63,12 @@ load('data/bb_coords_surface.mat')
 ilon_s=ilon_;
 ilat_s=ilat_;
 load('data/bb_coords_bottom.mat')
-ilon_b=ilon_;
-ilat_b=ilat_;
-
-ilon=[ilon_s,ilon_b];
-ilat=[ilat_s,ilat_b];
+ilon=[ilon_s,ilon_];
+ilat=[ilat_s,ilat_];
+load('data/p_bb_surface.mat')
+p_bb_s=p_bb;
+load('data/p_bb_bottom.mat')
+pbb=[p_bb_s,p_bb];
 
 [ilat,ilon,sns3d,ctns3d,pns3d]=sortit(ilat,ilon,ss,cts,ps);
 disp('final test: ')

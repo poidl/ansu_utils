@@ -39,6 +39,7 @@ pbb=(dp:dp:p2);
 
 ilat_=[];
 ilon_=[];
+p_bb=[];
 
 cnt=1;
 
@@ -61,6 +62,7 @@ while 1;
     
     ilat_=[ilat_,ilat*ones(1,ns)];
     ilon_=[ilon_,ilon*ones(1,ns)];
+    p_bb=[p_bb,repmat([p1;p2],[1 ns])];
     save_netcdf(p_max,'p_max',['data/nc/bottom/p_max/p_max',num2str(cnt),'.nc'])
     save_netcdf(dist,'dist',['data/nc/bottom/dist/dist',num2str(cnt),'.nc'])
     
@@ -83,7 +85,7 @@ while 1;
     end
 end
 save('data/bb_coords_bottom.mat','ilat_','ilon_')
-
+save('data/p_bb_bottom.mat','p_bb')
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 % fill out surface holes
@@ -93,6 +95,7 @@ dist=p_min;
 
 ilat_=[];
 ilon_=[];
+p_bb=[];
 while md>dp;
     cnt=cnt+1;
     disp(['backbone Nr. ',num2str(cnt)])    
@@ -116,6 +119,7 @@ while md>dp;
     
     ilat_=[ilat_,ilat*ones(1,ns)];
     ilon_=[ilon_,ilon*ones(1,ns)];
+    p_bb=[p_bb,repmat([p1;p2],[1 ns])];
     save_netcdf(p_min,'p_min',['data/nc/surface/p_min/p_min',num2str(cnt),'.nc'])
     save_netcdf(dist,'dist',['data/nc/surface/dist/dist',num2str(cnt),'.nc'])
     
@@ -127,7 +131,7 @@ while md>dp;
     [md,imax]=max(dist(:));
 end
 save('data/bb_coords_surface.mat','ilat_','ilon_')
-    
+save('data/p_bb_surface.mat','p_bb')
 
 keyboard
 
