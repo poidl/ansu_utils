@@ -106,7 +106,7 @@ while md>dp;
 
     p1=0;
     p2=p_min(ilat,ilon);
-    pbb=(p1+dp:dp:p2);
+    pbb=(p2-dp:-dp:p1);
     
     [sns3d,ctns3d,pns3d] = ribs(ilat,ilon,p1,p2,pbb,sa,ct,p);
     
