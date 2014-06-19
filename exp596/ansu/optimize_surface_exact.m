@@ -51,7 +51,11 @@ cut_off_choice = mld(s,ct,p); % mixed-layer depth
 breakout=false;
 stop_wetting=false;
 cnt_it_after_wetting=0;
-iwetted_old=[];
+
+% store indices of wetted grid points of the last three iterations. Necessary to avoid periodic
+% cut-and-append behaviour with a period extending over multiple
+% iterations (we have seen periods of 2 and assume here that 3 is the worst possible case)
+iwetted_old={[],[],[]}; 
 
 % iterations of inversion
 it=0; % start with it=0 and increment it after the initial surface is written to output
@@ -81,13 +85,18 @@ while 1
     else
         nneighbours=0;
     end
-    if size(iwetted)==size(iwetted_old)
-        app_and_cut=all(iwetted==iwetted_old); % identical points keep getting appended and cut off
-        if app_and_cut
-            stop_wetting=true;
+    for ll=1:length(iwetted_old)
+        iw_old=iwetted_old{ll};
+        if size(iwetted)==size(iw_old)
+            app_and_cut=all(iwetted==iw_old); % identical points keep getting appended and cut off
+            if app_and_cut
+                stop_wetting=true;
+            end
         end
     end
-    iwetted_old=iwetted;
+    iwetted_old(1)=[]; % forget last
+    iwetted_old{1,3}=iwetted; % insert most recent
+    
     if nneighbours==0
         stop_wetting=true;
     end
@@ -274,7 +283,44 @@ function [drhodx,drhody,regions,b]=use_bstar(drhodx,drhody,sns,ctns,pns,s,ct,p)
     
 end
 
-function [sns,ctns,pns,nneighbours,iwetted]=wetting(sns,ctns,pns,s,ct,p)
+
+function [sns,ctns,pns,nneighbours,iw]=wetting(sns,ctns,pns,s,ct,p)
+% This function calls the actual wetting routine for each region
+% separately, to avoid problems arising from two regions being separated by
+% only one single wet point. In that case there could be wetting from only
+% one of both directions (possibly the wrong one).
+
+[yi,xi]=size(sns);
+
+regions=find_regions(sns);
+iw=false(xi*yi,1);
+for ireg=1:length(regions)
+    reg=regions{ireg};
+    
+    sns_r=nan*ones(yi,xi);
+    ctns_r=nan*ones(yi,xi);
+    pns_r=nan*ones(yi,xi);
+    
+    sns_r(reg)=sns(reg);
+    ctns_r(reg)=ctns(reg);
+    pns_r(reg)=pns(reg);
+    
+
+    [sns_r,ctns_r,pns_r,~,iw_r]=wetting_region(sns_r,ctns_r,pns_r,s,ct,p);
+
+    sns(iw_r)=sns_r(iw_r);
+    ctns(iw_r)=ctns_r(iw_r);
+    pns(iw_r)=pns_r(iw_r);
+    iw=iw|iw_r;
+    
+end
+
+nneighbours=sum(iw);
+
+end
+
+
+function [sns,ctns,pns,nneighbours,iwetted]=wetting_region(sns,ctns,pns,s,ct,p)
 
 user_input;
 
@@ -326,7 +372,7 @@ s4=sum(~isnan(sns(sn)));
 
 nneighbours=s1+s2+s3+s4;
 
-iwetted=~isnan(sns(en | wn | sn | nn));
+iwetted= ~isnan(sns(:)) & (en | wn | sn | nn);
 if sum(iwetted)~=nneighbours
     error('something is wrong')
 end

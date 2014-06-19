@@ -39,9 +39,9 @@ ilat=18;
 ilon=48;
 dep=1960;
 
-ilat=5;
-ilon=85;
-dep=36.748887365683913;
+% ilat=5;
+% ilon=85;
+% dep=36.748887365683913;
 
 istation=ilat+yi*(ilon-1);
 save('data/stationindex.mat','istation')
