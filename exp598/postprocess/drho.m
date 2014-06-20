@@ -13,7 +13,7 @@ lon=squeeze(longs(1,1,:));
 vv=drho_hist; % variable to plot
 nit=size(vv,1);
 
-nfig=3; % number of figures (pages)
+nfig=floor(nit/6)+(mod(nit,6)>0); % number of figures (pages)
 ncols=2; % number of columns
 nrows=3; % number of rows
 nsp=ncols*nrows; % max. number of subplots per figure

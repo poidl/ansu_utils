@@ -14,7 +14,7 @@ vv=pns_hist; % variable to plot
 vv=diff(vv,1);
 nit=size(vv,1);
 
-nfig=2; % number of figures (pages)
+nfig=floor(nit/6)+(mod(nit,6)>0); % number of figures (pages)
 ncols=2; % number of columns
 nrows=3; % number of rows
 nsp=ncols*nrows; % max. number of subplots per figure

@@ -595,31 +595,28 @@ end
 
 end
 
-
-
 function diagnose_and_write(it,sns,ctns,pns,drhodx,drhody,drho,res,b,n2ns)
 user_input; % read nit, etc.
 load('data/dxdy.mat') % for epsilon
-nit=nit_max;
 if it==0 % initialize
     [yi,xi]=size(sns);
     
-    sns_hist = nan(nit+1,yi,xi); % store variables on initial surface and on nit improvements (=> nit+1)
-    ctns_hist = nan(nit+1,yi,xi);
-    pns_hist = nan(nit+1,yi,xi);
+    sns_hist = nan(1,yi,xi); 
+    ctns_hist = nan(1,yi,xi);
+    pns_hist = nan(1,yi,xi);
     
     %slope_square = nan(nit,1);
     %eps_rms_hist=nan(nit,1);
     
-    drhoxy_rms_hist=nan(nit,1); 
-    drho_rms_hist=nan(nit,1);
-    epsilon_rms_hist=nan(nit,1);
+    drhoxy_rms_hist=nan(1,1); 
+    drho_rms_hist=nan(1,1);
+    epsilon_rms_hist=nan(1,1);
     
-    drho_hist = nan(nit,yi,xi);
-    res_hist = nan(nit,1);
+    drho_hist = nan(1,yi,xi);
+    res_hist = nan(1,1);
     
-    b_hist = nan(nit,yi,xi);
-    n2ns_hist = nan(nit,yi,xi);
+    b_hist = nan(1,yi,xi);
+    n2ns_hist = nan(1,yi,xi);
     
     vars = {'sns_hist','ctns_hist','pns_hist','drhoxy_rms_hist','drho_rms_hist','epsilon_rms_hist','drho_hist','res_hist','b_hist','n2ns_hist'};
     save(history_file, vars{:},'-v7.3');
@@ -650,8 +647,4 @@ if it>0
 end
 
 end
-
-
-
-
 

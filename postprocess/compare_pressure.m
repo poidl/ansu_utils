@@ -2,8 +2,8 @@
 clear all;
 close all;
 
-run1=571;
-run2=572;
+run1=598;
+run2=600;
 fname=['../exp',num2str(run1),'/data/iteration_history.mat'];
 varname= 'pns_hist';
 load(fname, varname);
@@ -13,16 +13,15 @@ lat=squeeze(lats(1,:,1));
 lon=squeeze(longs(1,1,:));
 
 vv1=pns_hist; % variable to plot
-it=size(vv1,1);
-%it=5;
+
 fname=['../exp',num2str(run2),'/data/iteration_history.mat'];
 varname= 'pns_hist';
 load(fname, varname);
 
 vv2=pns_hist; % variable to plot
 
-vv1it=squeeze(vv1(it,:,:));
-vv2it=squeeze(vv2(it,:,:));
+vv1it=squeeze(vv1(end,:,:));
+vv2it=squeeze(vv2(end,:,:));
 
 vv2it(isnan(vv1it))=nan;
 vv1it(isnan(vv2it))=nan;

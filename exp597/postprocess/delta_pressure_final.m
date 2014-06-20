@@ -13,18 +13,12 @@ lon=squeeze(longs(1,1,:));
 vv=pns_hist; % variable to plot
 %vv=diff(vv,1);
 nit=size(vv,1);
-for kk=1:size(pns_hist,1)
-    if all(isnan(pns_hist(kk,:)))
-        ifinal=kk-1;
-        break
-    end
-end
 for ii=1:nit;
-    vv(ii,:,:)=vv(ii,:,:)-vv(ifinal,:,:);
+    vv(ii,:,:)=vv(ii,:,:)-vv(nit,:,:);
 end
 nit=nit-1;
 
-nfig=3; % number of figures (pages)
+nfig=floor(nit/6)+(mod(nit,6)>0); % number of figures (pages)
 ncols=2; % number of columns
 nrows=3; % number of rows
 nsp=ncols*nrows; % max. number of subplots per figure
