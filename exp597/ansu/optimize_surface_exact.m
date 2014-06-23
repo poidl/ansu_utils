@@ -47,12 +47,20 @@ user_input;
 % prepare data
 %dbstop in mld at 50
 cut_off_choice = mld(s,ct,p); % mixed-layer depth
-
+   
 breakout=false;
+stop_wetting=false;
 cnt_it_after_wetting=0;
+
+% store indices of wetted grid points of the last three iterations. Necessary to avoid periodic
+% cut-and-append behaviour with a period extending over multiple
+% iterations (we have seen periods of 2 and assume here that 3 is the worst possible case)
+iwetted_old={[],[],[]}; 
+
 % iterations of inversion
 it=0; % start with it=0 and increment it after the initial surface is written to output
-while it<=nit_max;
+%while it<=nit_max;
+while 1
 
     % diagnose
     if save_iterations;
@@ -62,27 +70,51 @@ while it<=nit_max;
         diagnose_and_write(it,sns,ctns,pns,drhodx,drhody,drho,res,b,n2ns);
     end
     
-    if (it==nit_max) || breakout
+    %if (it==nit_max) || breakout
+    if breakout
         break
     end
+    
     
     % Locations where outcropping occurs may have changed. Add points to
     % surface if necessary.
     %disp('Appending') 
-    [sns,ctns,pns,nneighbours]=wetting(sns,ctns,pns,s,ct,p);
-    if nneighbours==0 && it>5
-        cnt_it_after_wetting=cnt_it_after_wetting+1;
+    
+    if ~stop_wetting
+        [sns,ctns,pns,nneighbours,iwetted]=wetting(sns,ctns,pns,s,ct,p);
     else
-        cnt_it_after_wetting=0; % continue wetting
+        nneighbours=0;
+    end
+    for ll=1:length(iwetted_old)
+        iw_old=iwetted_old{ll};
+        if size(iwetted)==size(iw_old)
+            app_and_cut=all(iwetted==iw_old); % identical points keep getting appended and cut off
+            if app_and_cut
+                stop_wetting=true;
+            end
+        end
+    end
+    iwetted_old(1)=[]; % forget last
+    iwetted_old{1,3}=iwetted; % insert most recent
+    if nneighbours==0
+        stop_wetting=true;
+    end
+    if it>5  
+        if stop_wetting
+            cnt_it_after_wetting=cnt_it_after_wetting+1;
+        end
     end
     if cnt_it_after_wetting==nit_after_wetting
         breakout=true;
     end
 
     it=it+1; % start the next iteration
+    
+%    if (it==nit_max) && (nneighbours~=0)
+%        error('need more wetting?')
+%    end
     disp(['iter ',int2str(it), '    append ',num2str(nneighbours)]);
         
-    
 %     % disregard data above mixed layer depth
 %     drhodx(pns<=cut_off_choice)=nan;
 %     drhody(pns<=cut_off_choice)=nan;
@@ -115,13 +147,19 @@ while it<=nit_max;
     end
 
     [sns, ctns, pns] = depth_ntp_simple(sns(:)', ctns(:)', pns(:)', s(:,:), ct(:,:), p(:,:), drho(:)' );
-    
+       
     [zi,yi,xi]=size(s);
     sns=reshape(sns,[yi xi]);
     ctns=reshape(ctns,[yi xi]);
     pns=reshape(pns,[yi xi]);
     
+    % remove any regions which may have been detached during optimization
     %keyboard
+    if clamp_on_point
+        load('data/stationindex.mat') % istation
+        [sns,ctns,pns] = get_connected(sns,ctns,pns,istation);
+    end
+
 end
 
 sns_i=sns;
@@ -249,7 +287,42 @@ function [drhodx,drhody,regions,b]=use_bstar(drhodx,drhody,sns,ctns,pns,s,ct,p)
     
 end
 
-function [sns,ctns,pns,nneighbours]=wetting(sns,ctns,pns,s,ct,p)
+
+function [sns,ctns,pns,nneighbours,iw]=wetting(sns,ctns,pns,s,ct,p)
+% This function calls the actual wetting routine for each region
+% separately, to avoid problems arising from two regions being separated by
+% only one single wet point. In that case there could be wetting from only
+% one of both directions (possibly the wrong one).
+[yi,xi]=size(sns);
+
+regions=find_regions(sns);
+iw=false(xi*yi,1);
+for ireg=1:length(regions)
+    reg=regions{ireg};
+    
+    sns_r=nan*ones(yi,xi);
+    ctns_r=nan*ones(yi,xi);
+    pns_r=nan*ones(yi,xi);
+    
+    sns_r(reg)=sns(reg);
+    ctns_r(reg)=ctns(reg);
+    pns_r(reg)=pns(reg);
+    
+
+    [sns_r,ctns_r,pns_r,~,iw_r]=wetting_region(sns_r,ctns_r,pns_r,s,ct,p);
+
+    sns(iw_r)=sns_r(iw_r);
+    ctns(iw_r)=ctns_r(iw_r);
+    pns(iw_r)=pns_r(iw_r);
+    iw=iw|iw_r;
+    
+end
+
+nneighbours=sum(iw);
+
+end
+
+function [sns,ctns,pns,nneighbours,iwetted]=wetting_region(sns,ctns,pns,s,ct,p)
 
 user_input;
 
@@ -300,11 +373,14 @@ s3=sum(~isnan(sns(nn)));
 s4=sum(~isnan(sns(sn)));
 
 nneighbours=s1+s2+s3+s4;
+
+iwetted= ~isnan(sns(:)) & (en | wn | sn | nn);
+if sum(iwetted)~=nneighbours
+    error('something is wrong')
+end
 %disp(['Number of points added: ',num2str(nneighbours)])
 
 end
-
-
 
 
 function [drho,res]=solve_lsqr(regions, xx, yy)
@@ -526,26 +602,25 @@ end
 function diagnose_and_write(it,sns,ctns,pns,drhodx,drhody,drho,res,b,n2ns)
 user_input; % read nit, etc.
 load('data/dxdy.mat') % for epsilon
-nit=nit_max;
 if it==0 % initialize
     [yi,xi]=size(sns);
     
-    sns_hist = nan(nit+1,yi,xi); % store variables on initial surface and on nit improvements (=> nit+1)
-    ctns_hist = nan(nit+1,yi,xi);
-    pns_hist = nan(nit+1,yi,xi);
+    sns_hist = nan(1,yi,xi); 
+    ctns_hist = nan(1,yi,xi);
+    pns_hist = nan(1,yi,xi);
     
     %slope_square = nan(nit,1);
     %eps_rms_hist=nan(nit,1);
     
-    drhoxy_rms_hist=nan(nit,1); 
-    drho_rms_hist=nan(nit,1);
-    epsilon_rms_hist=nan(nit,1);
+    drhoxy_rms_hist=nan(1,1); 
+    drho_rms_hist=nan(1,1);
+    epsilon_rms_hist=nan(1,1);
     
-    drho_hist = nan(nit,yi,xi);
-    res_hist = nan(nit,1);
+    drho_hist = nan(1,yi,xi);
+    res_hist = nan(1,1);
     
-    b_hist = nan(nit,yi,xi);
-    n2ns_hist = nan(nit,yi,xi);
+    b_hist = nan(1,yi,xi);
+    n2ns_hist = nan(1,yi,xi);
     
     vars = {'sns_hist','ctns_hist','pns_hist','drhoxy_rms_hist','drho_rms_hist','epsilon_rms_hist','drho_hist','res_hist','b_hist','n2ns_hist'};
     save(history_file, vars{:},'-v7.3');

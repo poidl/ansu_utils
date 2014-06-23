@@ -54,7 +54,7 @@ cnt_it_after_wetting=0;
 
 % store indices of wetted grid points of the last three iterations. Necessary to avoid periodic
 % cut-and-append behaviour with a period extending over multiple
-% iterations (we have seen periods of 2 and assume 3 is worst case)
+% iterations (we have seen periods of 2 and assume here that 3 is the worst possible case)
 iwetted_old={[],[],[]}; 
 
 % iterations of inversion
@@ -147,13 +147,19 @@ while 1
     end
 
     [sns, ctns, pns] = depth_ntp_simple(sns(:)', ctns(:)', pns(:)', s(:,:), ct(:,:), p(:,:), drho(:)' );
-    
+       
     [zi,yi,xi]=size(s);
     sns=reshape(sns,[yi xi]);
     ctns=reshape(ctns,[yi xi]);
     pns=reshape(pns,[yi xi]);
     
+    % remove any regions which may have been detached during optimization
     %keyboard
+    if clamp_on_point
+        load('data/stationindex.mat') % istation
+        [sns,ctns,pns] = get_connected(sns,ctns,pns,istation);
+    end
+
 end
 
 sns_i=sns;
@@ -283,10 +289,10 @@ end
 
 
 function [sns,ctns,pns,nneighbours,iw]=wetting(sns,ctns,pns,s,ct,p)
-% this function calls the actual wetting routine for each region
+% This function calls the actual wetting routine for each region
 % separately, to avoid problems arising from two regions being separated by
-% only one single wet point (in which case there could be wetting from only
-% one of both directions).
+% only one single wet point. In that case there could be wetting from only
+% one of both directions (possibly the wrong one).
 [yi,xi]=size(sns);
 
 regions=find_regions(sns);
