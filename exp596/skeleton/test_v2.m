@@ -58,30 +58,33 @@ dp=500;
 
 i1=1;
 %keyboard
+
+% bundle all surfaces intersecting with backbone ii 
 for ii=1:nbb
-    ilo=uilon(ii);
-    ila=uilat(ii);
-    p1=up_bb(1,ii); 
-    p2=up_bb(2,ii);
+    ilo=uilon(ii); % bb lon
+    ila=uilat(ii); % bb lat
+    p1=up_bb(1,ii); % top bb pressure
+    p2=up_bb(2,ii); % bottom bb pressure
+    
     
     sdef=~isnan(ps(:,ila,ilo)); % true if surface intersects with backbone
     
-%    if any(sdef)
-    ss_bb=ss(sdef,:,:);
-    cts_bb=cts(sdef,:,:);
-    ps_bb=ps(sdef,:,:);
+    % extract surfaces to be bundled
+    sb=ss(sdef,:,:);
+    ctb=cts(sdef,:,:);
+    pb=ps(sdef,:,:);
 
-    is=find(sdef);      
+    is=find(sdef); % index of surfaces to be bundled in original stack (ss,cts,...)     
 
-    for jj=1:sum(sdef)
-        js=is(jj);
-        if lbb(js)~=ii
+    for ib=1:sum(sdef) % for every surface in bundle
+        iis=is(ib);
+        if lbb(iis)~=ii
 
-            jsa=is(jj-1);
-            ilo_=ilon(js);
-            ila_=ilat(js);
+            iis_up=is(ib-1);
+            ilo_=ilon(iis);
+            ila_=ilat(iis);
             keyboard
-            dp_rms=sqrt(nanmean((ps(js,:)-ps(jsa,:)).^2));
+            dp_rms=sqrt(nanmean((ps(iis,:)-ps(iis_up,:)).^2));
         end
     end
 %             ilo_=ilon(ii);
@@ -114,13 +117,13 @@ for ii=1:nbb
 
         ps(sdef,:,:)=nan; % these surfaces are stored; delete
 
-        [ilat_bb,ilon_bb,ss_bb,cts_bb,ps_bb]=sortit(ilat_bb,ilon_bb,ss_bb,cts_bb,ps_bb);
+        [ilat_bb,ilon_bb,sb,ctb,pb]=sortit(ilat_bb,ilon_bb,sb,ctb,pb);
 
         i2=i1+sum(sdef)-1;
         %keyboard
-        ss_new(i1:i2,:,:)=ss_bb;
-        cts_new(i1:i2,:,:)=cts_bb;
-        ps_new(i1:i2,:,:)=ps_bb;
+        ss_new(i1:i2,:,:)=sb;
+        cts_new(i1:i2,:,:)=ctb;
+        ps_new(i1:i2,:,:)=pb;
         ilat_new(i1:i2)=ilat_bb;
         ilon_new(i1:i2)=ilon_bb;
         

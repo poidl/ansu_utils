@@ -2,8 +2,8 @@
 clear all;
 close all;
 
-run1=603;
-run2=608;
+run1=620;
+run2=621;
 fname=['../exp',num2str(run1),'/data/iteration_history.mat'];
 varname= 'pns_hist';
 load(fname, varname);
@@ -88,7 +88,7 @@ ilon2=85;
 disp(['dp at bb 1: ',num2str(diff(ilat1,ilon1))])
 disp(['dp at bb 2: ',num2str(diff(ilat2,ilon2))])
 disp(['max(dp): ',num2str(max(abs(diff(:))))])
-keyboard
+%keyboard
 load ('../external_scripts/coast/coast_data.mat');
 plot(coast_data_long,coast_data_lat,'k-','LineWidth',1);
 if ~logp

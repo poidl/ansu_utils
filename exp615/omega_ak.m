@@ -54,6 +54,11 @@ dep=36.748886271379888;
 istation=ilat+yi*(ilon-1);
 save('data/stationindex.mat','istation')
 
+%save_netcdf(sa,ct,p,sns,ctns,pns);
+% artificial bottom for testing
+sa(end,:,:)=nan;
+ct(end,:,:)=nan;
+
 load('../exp603/data/iteration_history.mat')
 sns=squeeze(sns_hist(end,:,:));
 ctns=squeeze(ctns_hist(end,:,:));
