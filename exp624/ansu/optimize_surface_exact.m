@@ -1,4 +1,4 @@
-function [sns_i,ctns_i,pns_i,rmsdrho,mdf] = optimize_surface_exact(s,ct,p,sns,ctns,pns)
+function [sns_i,ctns_i,pns_i,rmsdrho,mdf,df_med] = optimize_surface_exact(s,ct,p,sns,ctns,pns)
 
 %           Optimize density surfaces to minimise the fictitious diapycnal diffusivity
 %
@@ -94,8 +94,12 @@ while 1
         
         sx=drhodx./(facx.*dx);
         sy=drhody./(facy.*dy);
-        s2=nanmean( [sx(:);sy(:)] .^2);
-        mdf=1e3*s2;
+        s2_bar=nanmean( [sx(:);sy(:)] .^2);
+        s2_med=nanmedian( [sx(:);sy(:)] .^2);
+        mdf=1e3*s2_bar;
+        df_med=1e3*s2_med;
+        
+        
 %         if nx~=1
 %             dx=0.5*(dx(:,1:end-1)+dx(:,2:end));
 %             dx=horzcat(dx(:,end), dx); % sloppy 

@@ -50,9 +50,9 @@ pbb=pbb(~isnan(pbb));
 values2_omega=values2(~isnan(pbb));
 
 %pbb=pbb(1:3);
-[sns3d,ctns3d,pns3d,rmsdrho,mdf] = ribs(ilat,ilon,pbb,s,ct,p);
+[sns3d,ctns3d,pns3d,rmsdrho,mdf,df_med] = ribs(ilat,ilon,pbb,s,ct,p);
 
-save('data/gamma_i_ribs.mat','pns3d','rmsdrho','mdf','values2_omega')
+save('data/gamma_i_ribs.mat','pns3d','rmsdrho','mdf','df_med','values2_omega')
 save_netcdf(pns3d,'pns3d','data/gamma_i_pns3d.nc')
 
 

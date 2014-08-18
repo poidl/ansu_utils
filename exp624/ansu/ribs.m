@@ -1,4 +1,4 @@
-function [sns3d,ctns3d,pns3d,rmsdrho,mdf] = ribs(ilat,ilon,pbb,sa,ct,p)
+function [sns3d,ctns3d,pns3d,rmsdrho,mdf,df_med] = ribs(ilat,ilon,pbb,sa,ct,p)
 
 [zi,yi,xi]=size(sa);
 ns=length(pbb);
@@ -13,7 +13,7 @@ if 1
 
         point=[pbb(kk) ilat ilon];
         display(['pressure ',num2str(pbb(kk))]);
-        [sns3d(kk,:,:),ctns3d(kk,:,:),pns3d(kk,:,:),rmsdrho(kk),mdf(kk)] =optimize_surface_at_point(sa,ct,p,point);
+        [sns3d(kk,:,:),ctns3d(kk,:,:),pns3d(kk,:,:),rmsdrho(kk),mdf(kk),df_med(kk)] =optimize_surface_at_point(sa,ct,p,point);
 
     end
     %save('data/omega_3d.mat','sns3d','ctns3d','pns3d')

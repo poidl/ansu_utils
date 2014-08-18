@@ -1,4 +1,4 @@
-function [sns,ctns,pns,rmsdrho,mdf] = optimize_surface_at_point(s,ct,p,point)
+function [sns,ctns,pns,rmsdrho,mdf,df_med] = optimize_surface_at_point(s,ct,p,point)
 
     % construct an optimized approximately neutral surface intersecting with 
     % point=[p0 ilat ilon], whose horizontal coordinates coincide with a grid point of
@@ -41,7 +41,7 @@ function [sns,ctns,pns,rmsdrho,mdf] = optimize_surface_at_point(s,ct,p,point)
     % Attention if no_land_mask=true !
     [sns,ctns,pns] = get_connected(sns,ctns,pns,istation);
     
-    [sns,ctns,pns,rmsdrho,mdf] = optimize_surface_exact(s,ct,p,sns,ctns,pns);
+    [sns,ctns,pns,rmsdrho,mdf,df_med] = optimize_surface_exact(s,ct,p,sns,ctns,pns);
 
 end
 
