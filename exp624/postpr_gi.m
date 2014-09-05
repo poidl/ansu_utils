@@ -50,6 +50,7 @@ pbb=pbb(~isnan(pbb));
 values2_omega=values2(~isnan(pbb));
 
 %pbb=pbb(1:3);
+keyboard
 [sns3d,ctns3d,pns3d,rmsdrho,mdf,df_med] = ribs(ilat,ilon,pbb,s,ct,p);
 
 save('data/gamma_i_ribs.mat','pns3d','rmsdrho','mdf','df_med','values2_omega')
