@@ -2,13 +2,14 @@
 clear all;
 close all;
 
-run1=620;
-run2=621;
+run1=642;
+run2=643;
 fname=['../exp',num2str(run1),'/data/iteration_history.mat'];
 varname= 'pns_hist';
 load(fname, varname);
-load(['../exp',num2str(run1),'/data/input_data.mat'], 'lats','longs');
-
+%load(['../exp',num2str(run1),'/data/input_data.mat'], 'lats','longs');
+gamma_i_exp=24;
+load(['/home/nfs/z3439823/mymatlab/gamma_i/gamma_i_utils/exp0',num2str(gamma_i_exp),'/data/input_data.mat'])
 lat=squeeze(lats(1,:,1));
 lon=squeeze(longs(1,1,:));
 
@@ -94,7 +95,7 @@ plot(coast_data_long,coast_data_lat,'k-','LineWidth',1);
 if ~logp
     title('Pressure difference [dbar]')
 else
-    title(['Pressure difference [log10(dbar)]. Initial: ',num2str(vv2it(istation)),' dbar'])
+    title(['Pressure difference [log10(abs(dbar))]. Initial: ',num2str(vv2it(istation)),' dbar'])
 end
 print('-dpdf','-r400',['figures/compare_pressure_finals_',num2str(run1),'_',num2str(run2),'.pdf'])
 

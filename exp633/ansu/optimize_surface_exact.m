@@ -127,13 +127,16 @@ while 1
     if strcmp(error_measure,'drho_local')
         [errx,erry]=delta_tilde_rho(sns,ctns,pns);
     elseif strcmp(error_measure,'slope_difference')
-        [errx,erry]=slope_error(sns,ctns,pns,s,ct,p);
+        [errx,erry]=delta_slope(sns,ctns,pns,s,ct,p);
     end
-    
+    %[errx,erry]=delta2grad(errx,erry); % density gradient error or slope error
+    errx=over_dA(errx,'i');
+    erry=over_dA(erry,'j');
     if use_b    
         if strcmp(error_measure,'drho_local')
             [errx,erry,regions,b]=use_bstar(errx,erry,pns,s,ct,p);
             [derr,res]=solve_lsqr(regions, errx, erry);
+            derr=times_dA(derr); 
         else 
             error('not implemented')
         end
@@ -141,11 +144,13 @@ while 1
         if strcmp(error_measure,'drho_local')
             regions=find_regions(pns);
             [derr,res]=solve_lsqr(regions, errx, erry); 
+            derr=times_dA(derr);
             
         elseif strcmp(error_measure,'slope_difference')
             regions=find_regions(pns);
 %             [regions]=remove_points(errx,erry,pns);
              [derr,res]=solve_lsqr(regions, errx, erry);
+             derr=times_dA(derr);
 %             % only keep region at backbone
 %             setnan=true(size(sns));
 %             regions=find_regions(derr);
@@ -242,6 +247,7 @@ function [drhodx,drhody,regions,b]=use_bstar(drhodx,drhody,pns,s,ct,p)
     pmidy=0.5*(circshift(pmid, [0 -1 0])+pmid);
  
     [rkx,rky]=delta_rhokappa(s,ct,p); 
+    [rkx,rky]=delta2grad(rkx,rky);
     
     rkx=0.5*(circshift(rkx,   [-1 0 0])+rkx); % regrid onto vertical n2 grid
     rky=0.5*(circshift(rky,   [-1 0 0])+rky);
@@ -260,6 +266,7 @@ function [drhodx,drhody,regions,b]=use_bstar(drhodx,drhody,pns,s,ct,p)
     [regions]=remove_points(lnbx,lnby,pns);
 
     lnb=solve_lsqr(regions,lnbx,lnby);
+    lnb=times_dA(lnb);
     b=exp(lnb);
     
     bx=0.5*(circshift(b,[0 -1])+b);
