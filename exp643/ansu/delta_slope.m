@@ -47,5 +47,3 @@ ps=circshift(ps,[-1 0]); % grid onto point to which tangent is laid
 dz_orig=(ps-pns); 
 sy=0.5*(dz_north-dz_orig);
 
-
-
