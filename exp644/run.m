@@ -29,7 +29,7 @@ pressure_ns
 %     drho
 %     error_measure_drho
      error_measure_rms_del
-     error_measure_rms_del_area_weighted
+     error_measure_rms_grad_area_weighted
 % end
 % 
 % get_mean_pressure
