@@ -15,7 +15,7 @@ up=p(:,:)<=p_stacked;
 %tmp= up & circshift(~up,-1); % true at downward crossings from neg to pos
 % this is for avoiding troubles in gamma_i fields with 'floating nans' (see
 % depth_iso_simple.m
-tmp= up & circshift(~up,-1) & ~isnan(circshift(p,-1)); % in case p is a variable this will remove floating nans.
+tmp= up & circshift(~up,-1) & ~isnan(circshift(p(:,:),-1)); % in case p isn't pressure the last term will remove floating nans.
 
 tmp(end,:)=false; % discard bottom
 cs=cumsum(tmp,1)+1;
