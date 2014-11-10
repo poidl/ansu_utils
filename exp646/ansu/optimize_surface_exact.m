@@ -87,11 +87,6 @@ while 1
 %     ctns(pns<=cut_off_choice)=nan;
 %     pns(pns<=cut_off_choice)=nan;
 
-    if no_land_mask
-        load([datapath,'latlon.mat'])
-        [ocean, n] = gamma_ocean_and_n(s,ct,p,lon,lat);
-        save([datapath,'no_land_mask.mat'], 'ocean', 'n')
-    end
  
     if strcmp(error_measure,'drho_local')
         [er_delx,er_dely]=delta_tilde_rho(sns,ctns,pns);
@@ -103,7 +98,7 @@ while 1
     if strcmp(error_measure,'drho_local')
         
         if use_b
-            error('no area weighting')
+            error('todo: area weighting, use find_regions_coupled_sys in solve_lsqr ')
             [er_delx,er_dely,regions,b]=use_bstar(er_delx,er_dely,pns,s,ct,p);
             [derr,res]=solve_lsqr(regions, er_delx, er_dely);
             derr=derr./b;
@@ -128,7 +123,11 @@ while 1
             [erx,ery]=times_sqrtdA_on_delta(er_gradx,er_grady,dx,dy);             
 
 
-            regions=find_regions(pns);
+            %regions=find_regions(pns);
+            if no_land_mask
+                [erx,ery]=no_land_mask_disconnect(erx,ery);
+            end
+            regions=find_regions_coupled_system(pns,erx,ery);
             [derr,res]=solve_lsqr(regions, erx, ery);
             derr=0.8*derr;
             
@@ -151,7 +150,10 @@ while 1
         er_grady=er_dely./dy;
         [erx,ery]=times_sqrtdA_on_delta(er_gradx,er_grady,dx,dy);        
         
-        [regions]=remove_points(erx,ery,pns); % not possible to use find_regions() here, since the differencing may have introduced nans
+        if no_land_mask
+            [erx,ery]=no_land_mask_disconnect(erx,ery);
+        end
+        regions=find_regions_coupled_system(pns,erx,ery);
         [derr,res]=solve_lsqr(regions, erx, ery);
        
         pns=pns+0.1*derr;
