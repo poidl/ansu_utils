@@ -98,9 +98,9 @@ while 1
     if strcmp(error_measure,'drho_local')
         
         if use_b
-            error('todo: area weighting, use find_regions_coupled_sys in solve_lsqr ')
+            error('todo: area weighting, both in use_bstar and here')
             [er_delx,er_dely,regions,b]=use_bstar(er_delx,er_dely,pns,s,ct,p);
-            [derr,res]=solve_lsqr(regions, er_delx, er_dely);
+            [derr,res]=solve_lsqr_links(regions, er_delx, er_dely);
             derr=derr./b;
             
         else
@@ -109,8 +109,8 @@ while 1
                     [n2ns,n2nsx,n2nsy]=get_n2ns(pns,s,ct,p);
                 end
                 if it>=5
-                    erx=erx./n2nsx;
-                    ery=ery./n2nsy;
+                    er_delx=er_delx./n2nsx;
+                    er_dely=er_dely./n2nsy;
                 end
                 
             end
@@ -122,13 +122,11 @@ while 1
             er_grady=er_dely./dy;
             [erx,ery]=times_sqrtdA_on_delta(er_gradx,er_grady,dx,dy);             
 
-
-            %regions=find_regions(pns);
             if no_land_mask
                 [erx,ery]=no_land_mask_disconnect(erx,ery);
             end
             regions=find_regions_coupled_system(pns,erx,ery);
-            [derr,res]=solve_lsqr(regions, erx, ery);
+            [derr,res]=solve_lsqr_links(regions, erx, ery);
             derr=0.8*derr;
             
             if strcmp(weights,'drho_local_n2') & it>=5
@@ -154,7 +152,7 @@ while 1
             [erx,ery]=no_land_mask_disconnect(erx,ery);
         end
         regions=find_regions_coupled_system(pns,erx,ery);
-        [derr,res]=solve_lsqr(regions, erx, ery);
+        [derr,res]=solve_lsqr_links(regions, erx, ery);
        
         pns=pns+0.1*derr;
         sns=var_on_surf_stef(s,p,pns);

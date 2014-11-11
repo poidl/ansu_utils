@@ -49,8 +49,8 @@ pns3d=sns3d;
 sms=nan*ones(1,ns);
 dms=nan*ones(1,ns);
 
-%pbb=pbb(50);
-%ns=length(pbb);
+pbb=pbb(30);
+ns=length(pbb);
 
 for kk=1:ns
     point=[pbb(kk) ibb];

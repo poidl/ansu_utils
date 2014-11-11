@@ -50,13 +50,9 @@ function [drhodx,drhody,regions,b]=use_bstar(drhodx,drhody,pns,s,ct,p)
     
     lnbx=0.5*(circshift(lnbx,    [0 -1])+lnbx);
     lnby=0.5*(circshift(lnby,    [-1 0])+lnby);
-
-    %lnbx=over_dA(lnbx,'i');
-    %lnby=over_dA(lnby,'j');
     
-    [regions]=remove_points(lnbx,lnby,pns);
-    lnb=solve_lsqr(regions,lnbx,lnby);
-    %lnb=times_dA(lnb);
+    regions=find_regions_coupled_system(pns,lnbx,lnby);
+    lnb=solve_lsqr_links(regions,lnbx,lnby);
     
     b=exp(lnb);
     

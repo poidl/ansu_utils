@@ -5,7 +5,7 @@ function [sns,ctns,pns,nneighbours,iw]=wetting(sns,ctns,pns,s,ct,p)
 % one of both directions (possibly the wrong one).
 [yi,xi]=size(sns);
 
-regions=find_regions(sns);
+regions=find_regions(sns); % using find_regions_coupled_system here may cause trouble?
 iw=false(xi*yi,1);
 for ireg=1:length(regions)
     reg=regions{ireg};
@@ -31,7 +31,6 @@ end
 nneighbours=sum(iw);
 
 end
-
 
 
 function [sns,ctns,pns,nneighbours,iwetted]=wetting_region(sns,ctns,pns,s,ct,p)
